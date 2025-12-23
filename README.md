@@ -9,7 +9,7 @@
 
 ## What's New in This Fork
 
-- **Automatic RSI Launcher Detection** - No more manual path configuration! The plugin reads your RSI Launcher settings automatically.
+- **Automatic RSI Launcher Detection** - (Hopefully) No more manual path configuration! The plugin reads your RSI Launcher settings automatically.
 
 - **Search Functionality** - Quickly find keybindings with the new search box in the Property Inspector.
 
