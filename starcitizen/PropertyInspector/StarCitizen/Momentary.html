@@ -69,17 +69,25 @@
 
     <!-- CLICK SOUND -->
     <div class="sdpi-item">
-        <div class="sdpi-item-label" onclick="clearFileName('clickSound');">Sound</div>
+        <div class="sdpi-item-label">Sound</div>
         <div class="sdpi-item-group file">
             <input class="sdpi-item-value sdProperty sdFile"
                    type="file"
                    id="clickSound"
                    accept=".wav"
-                   oninput="setSettings()"
-                   onchange="setSettings()">
+                   oninput="setSettings(); updateClearSoundVisibility();"
+                   onchange="setSettings(); updateClearSoundVisibility();">
             <label class="sdpi-file-info" id="clickSoundFilename">No file…</label>
             <label class="sdpi-file-label" for="clickSound">Choose file…</label>
         </div>
+    </div>
+
+    <!-- CLEAR SOUND BUTTON -->
+    <div class="sdpi-item hidden" id="dvClearSound">
+        <div class="sdpi-item-label"></div>
+        <button class="sdpi-item-value" onclick="clearClickSound()">
+            Clear sound
+        </button>
     </div>
 
     <div class="sdpi-item no-results hidden" id="noResults">
@@ -105,10 +113,10 @@
 
         if (functionsLoaded && savedFunctionValue) {
             const sel = document.getElementById('function');
-            if (sel) {
-                sel.value = savedFunctionValue;
-            }
+            if (sel) sel.value = savedFunctionValue;
         }
+
+        updateClearSoundVisibility();
     };
 
     function populateDropdown(functions) {
@@ -178,6 +186,27 @@
             : '';
     }
 
+    /* CLEAR SOUND HANDLER */
+    function clearClickSound() {
+        const input = document.getElementById('clickSound');
+        const label = document.getElementById('clickSoundFilename');
+
+        if (input) input.value = '';
+        if (label) label.textContent = 'No file…';
+
+        setSettings({ clickSound: '' });
+        updateClearSoundVisibility();
+    }
+
+    function updateClearSoundVisibility() {
+        const input = document.getElementById('clickSound');
+        const clearBtn = document.getElementById('dvClearSound');
+
+        if (!input || !clearBtn) return;
+
+        clearBtn.classList.toggle('hidden', !input.value);
+    }
+
     /* CORRECT BarRaider hook — SAME AS STATIC */
     document.addEventListener('websocketCreate', function () {
 
@@ -212,6 +241,8 @@
                 document.getElementById('functionSearch').value = '';
                 document.getElementById('searchResults').textContent = '';
             });
+
+        updateClearSoundVisibility();
     });
 </script>
 
