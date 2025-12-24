@@ -84,8 +84,6 @@ namespace starcitizen
 
         public static string profile;
 
-        public static string statictemplate;
-
         public static string dialtemplate;
 
         public static string macrotemplate;
@@ -128,8 +126,6 @@ namespace starcitizen
 
                 dpReader.Actions();
 
-                dpReader.CreateStaticHtml(statictemplate);
-
                 dpReader.CreateDialHtml(dialtemplate);
 
                 dpReader.CreateMacroHtml(macrotemplate);
@@ -167,8 +163,6 @@ namespace starcitizen
             try
             {
                 SCFiles.Instance.UpdatePack(); // update game files
-
-                statictemplate = File.ReadAllText("statictemplate.html");
 
                 dialtemplate = File.ReadAllText("dialtemplate.html");
 

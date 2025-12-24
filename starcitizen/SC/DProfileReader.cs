@@ -623,38 +623,6 @@ namespace SCJMapper_V2.SC
         }
 
 
-        public void CreateStaticHtml(string statictemplate)
-        {
-            try
-            {
-                // Static.html now uses dynamic JavaScript population from the plugin
-                // Just copy the template which contains the loading indicator and JS code
-                string outputDir = Path.Combine("PropertyInspector", "StarCitizen");
-                string outputPath = Path.Combine(outputDir, "Static.html");
-
-                try
-                {
-                    // Ensure directory exists
-                    if (!Directory.Exists(outputDir))
-                    {
-                        Directory.CreateDirectory(outputDir);
-                        Logger.Instance.LogMessage(TracingLevel.INFO, $"Created directory: {outputDir}");
-                    }
-
-                    File.WriteAllText(outputPath, statictemplate);
-                    Logger.Instance.LogMessage(TracingLevel.INFO, $"Successfully copied Static.html template to {outputPath}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.Instance.LogMessage(TracingLevel.ERROR, $"Failed to write Static.html to {outputPath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.LogMessage(TracingLevel.ERROR, $"CreateStaticHtml {ex}");
-            }
-        }
-
 
         public void CreateDialHtml(string dialtemplate)
         {
