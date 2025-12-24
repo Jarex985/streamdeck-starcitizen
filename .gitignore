@@ -342,3 +342,7 @@ healthchecksdb
 # Plugin distribution output
 dist/
 *.streamDeckPlugin
+
+# Local build and update scripts (not for repo)
+CreatePlugin.ps1
+check_updates.ps1

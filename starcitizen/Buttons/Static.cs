@@ -134,10 +134,13 @@ namespace starcitizen.Buttons
 
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
-            //Logger.Instance.LogMessage(TracingLevel.DEBUG, "ReceivedSettings");
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"ReceivedSettings - Function: {payload.Settings?["function"]?.ToString() ?? "null"}");
 
             // New in StreamDeck-Tools v2.0:
             BarRaider.SdTools.Tools.AutoPopulateSettings(settings, payload.Settings);
+            
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"After AutoPopulateSettings - Function: {settings.Function ?? "null"}");
+            
             HandleFileNames();
         }
 
@@ -149,6 +152,21 @@ namespace starcitizen.Buttons
 
         private void Connection_OnSendToPlugin(object sender, SDEventReceivedEventArgs<SendToPlugin> e)
         {
+            // Check if the Property Inspector is sending a log message
+            try
+            {
+                if (e?.Event?.Payload != null && e.Event.Payload.ContainsKey("jslog"))
+                {
+                    var logMessage = e.Event.Payload["jslog"]?.ToString();
+                    Logger.Instance.LogMessage(TracingLevel.INFO, $"[JS-PI] {logMessage}");
+                    return; // Handled, exit early
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"Error processing jslog: {ex.Message}");
+            }
+
             // Check if the Property Inspector is sending a connection message
             string propertyInspectorStatus = null;
             try

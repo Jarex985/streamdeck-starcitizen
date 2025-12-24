@@ -33,7 +33,7 @@
 
         <div class="sdpi-item">
             <div class="sdpi-item-label">Function</div>
-            <select class="sdpi-item-value select sdProperty function-select" id="function" oninput="handleFunctionSelection()" onchange="setSettings()">
+            <select class="sdpi-item-value select sdProperty" id="function" oninput="setSettings()">
                 <option value="" class="loading-indicator">Loading Star Citizen functions...</option>
             </select>
         </div>
@@ -55,24 +55,42 @@
         // Store all options for search functionality
         let allOptions = [];
         let functionsLoaded = false;
-        let pendingSelectedValue = null;
+        let savedFunctionValue = null;
 
-        // Function selection handler
-        function handleFunctionSelection() {
-            const functionSelect = document.getElementById('function');
-            const selectedValue = functionSelect.value;
-
-            if (selectedValue) {
-                console.log('Function selected:', selectedValue);
+        // Override loadConfiguration to handle function field specially
+        const originalLoadConfiguration = loadConfiguration;
+        loadConfiguration = function(payload) {
+            console.log('Custom loadConfiguration called');
+            
+            // Save the function value if present
+            if (payload && payload.function) {
+                savedFunctionValue = payload.function;
+                console.log('Saved function value for later restoration:', savedFunctionValue);
+                
+                // If dropdown is already loaded, set it now
+                if (functionsLoaded) {
+                    const functionSelect = document.getElementById('function');
+                    if (functionSelect) {
+                        functionSelect.value = savedFunctionValue;
+                        console.log('Immediately set function value:', savedFunctionValue);
+                    }
+                }
+                
+                // Remove function from payload so original loadConfiguration doesn't try to set it
+                const payloadCopy = Object.assign({}, payload);
+                delete payloadCopy.function;
+                originalLoadConfiguration(payloadCopy);
+            } else {
+                // No function in payload, call original as-is
+                originalLoadConfiguration(payload);
             }
-        }
+        };
 
         // Populate dropdown with functions data from the plugin
         function populateDropdown(functionsData) {
             console.log('Populating dropdown with', functionsData.length, 'groups');
             
             const functionSelect = document.getElementById('function');
-            const currentValue = functionSelect.value || pendingSelectedValue;
             
             // Clear existing options
             functionSelect.innerHTML = '';
@@ -112,14 +130,14 @@
                 functionSelect.appendChild(optgroup);
             });
             
-            // Restore previously selected value if any
-            if (currentValue) {
-                functionSelect.value = currentValue;
-                console.log('Restored selected value:', currentValue);
-            }
-            
             functionsLoaded = true;
             console.log('Dropdown populated with', allOptions.length, 'total options');
+            
+            // Restore saved value if any
+            if (savedFunctionValue) {
+                functionSelect.value = savedFunctionValue;
+                console.log('Restored saved function value after population:', savedFunctionValue);
+            }
         }
 
         // Filter options based on search
@@ -161,66 +179,26 @@
             console.log('Search filtered to', visibleCount, 'visible options');
         }
 
-        // Override websocketOnMessage to handle custom functions data
-        const originalWebsocketOnMessage = typeof websocketOnMessage !== 'undefined' ? websocketOnMessage : null;
-        
-        function customWebsocketOnMessage(evt) {
-            var jsonObj = JSON.parse(evt.data);
-            console.log('Received message:', jsonObj.event);
-
-            if (jsonObj.event === 'sendToPropertyInspector') {
-                var payload = jsonObj.payload;
-                
-                // Handle functions data
-                if (payload.functionsLoaded && payload.functions) {
-                    console.log('Received functions data from plugin');
-                    populateDropdown(payload.functions);
-                }
-                
-                // Also call loadConfiguration for settings (like selected function value)
-                loadConfiguration(payload);
-            }
-            else if (jsonObj.event === 'didReceiveSettings') {
-                var payload = jsonObj.payload;
-                
-                // Store the selected value if functions aren't loaded yet
-                if (!functionsLoaded && payload.settings && payload.settings.function) {
-                    pendingSelectedValue = payload.settings.function;
-                    console.log('Stored pending selected value:', pendingSelectedValue);
-                }
-                
-                loadConfiguration(payload.settings);
-            }
-            else {
-                console.log("Unhandled websocketOnMessage: " + jsonObj.event);
-            }
-        }
-
-        // Hook into websocket creation to override message handler
+        // Override websocket message handler to capture function data
         document.addEventListener('websocketCreate', function() {
-            console.log('Websocket created, setting up custom message handler');
-            if (websocket) {
-                websocket.onmessage = customWebsocketOnMessage;
-            }
+            console.log('Websocket created, setting up message interceptor');
+            
+            const originalOnMessage = websocket.onmessage;
+            websocket.onmessage = function(evt) {
+                var jsonObj = JSON.parse(evt.data);
+                
+                // Intercept our custom function data
+                if (jsonObj.event === 'sendToPropertyInspector' && jsonObj.payload && jsonObj.payload.functionsLoaded) {
+                    console.log('Received functions data, populating dropdown');
+                    populateDropdown(jsonObj.payload.functions);
+                }
+                
+                // Always call original handler to let SDK do its thing
+                if (originalOnMessage) {
+                    originalOnMessage.call(this, evt);
+                }
+            };
         });
-
-        // Also try to set up immediately in case websocket already exists
-        function setupMessageHandler() {
-            if (typeof websocket !== 'undefined' && websocket) {
-                console.log('Setting up custom message handler (immediate)');
-                websocket.onmessage = customWebsocketOnMessage;
-                return true;
-            }
-            return false;
-        }
-
-        // Try to set up handler with a small delay as fallback
-        setTimeout(function() {
-            if (!setupMessageHandler()) {
-                // Try again after a bit more time
-                setTimeout(setupMessageHandler, 500);
-            }
-        }, 100);
 
         // Search functionality initialization
         document.addEventListener('DOMContentLoaded', function() {
