@@ -13,11 +13,6 @@ using SCJMapper_V2.SC;
 
 namespace starcitizen
 {
-    public class KeyBindingFileEvent : EventArgs
-    {
-
-    }
-
     public class KeyBindingWatcher : FileSystemWatcher
     {
         public event EventHandler KeyBindingUpdated;
