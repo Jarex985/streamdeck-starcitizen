@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <title>Mhwlng's Star Citizen</title>
+    <title>Star Citizen – State Memory (Soft Sync Toggle)</title>
 
     <link rel="stylesheet" href="../sdpi.css">
     <link rel="stylesheet" href="../jquery.highlight-within-textarea.css">
@@ -17,15 +17,12 @@
     <script src="../jquery.highlight-within-textarea.js"></script>
 
     <style>
-        .no-results {
-            padding: 10px;
-            color: #999;
-            font-style: italic;
-            text-align: center;
-        }
-        .hidden {
-            display: none !important;
-        }
+        .no-results { padding: 10px; color: #999; font-style: italic; text-align: center; }
+        .hidden { display: none !important; }
+        .hint { font-size: 11px; color: #999; line-height: 1.25; margin-top: 4px; }
+        .compact { margin-top: 0; }
+        .inline-row { display: flex; align-items: center; gap: 10px; }
+        .small-btn { padding: 4px 8px; height: 26px; }
     </style>
 </head>
 
@@ -38,7 +35,7 @@
         <input type="text"
                class="sdpi-item-value"
                id="functionSearch"
-               placeholder="Type to search functions..."
+               placeholder="Type to search functions."
                autocomplete="off">
         <div class="sdpi-item-value"
              id="searchResults"
@@ -52,41 +49,105 @@
                 id="function"
                 oninput="setSettings()"
                 onchange="setSettings()">
-            <option value="">
-                Loading Star Citizen functions...
-            </option>
+            <option value="">Loading Star Citizen functions…</option>
         </select>
     </div>
 
-    <!-- CLICK SOUND -->
-    <div class="sdpi-item" id="dvClickSound">
-        <div class="sdpi-item-label">Sound</div>
-        <div class="sdpi-item-group file">
-            <input class="sdpi-item-value sdProperty sdFile"
-                   type="file"
-                   id="clickSound"
-                   accept=".wav"
-                   oninput="setSettings(); updateClearSoundVisibility();"
-                   onchange="setSettings(); updateClearSoundVisibility();">
-            <label class="sdpi-file-info"
-                   id="clickSoundFilename">No file...</label>
-            <label class="sdpi-file-label"
-                   for="clickSound">Choose file...</label>
+    <!-- MEMORY (compact) -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Memory</div>
+        <div class="sdpi-item-value">
+            <div class="inline-row">
+                <input type="checkbox"
+                       class="sdProperty"
+                       id="stateOn"
+                       onchange="setSettings()">
+                <div class="hint compact">
+                    Short press: sends key + flips memory.<br>
+                    Long press: flips memory only (no key sent).
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- CLEAR SOUND -->
-    <div class="sdpi-item hidden" id="dvClearSound">
-        <div class="sdpi-item-label"></div>
-        <button class="sdpi-item-value" onclick="clearClickSound()">
-            Clear sound
-        </button>
+    <!-- SOFT SYNC -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Soft Sync</div>
+        <input type="checkbox"
+               class="sdpi-item-value sdProperty"
+               id="softSyncLongPress"
+               onchange="setSettings()">
+    </div>
+
+    <!-- LONG PRESS MS -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Long press (ms)</div>
+        <input type="number"
+               class="sdpi-item-value sdProperty"
+               id="longPressMs"
+               min="0"
+               oninput="setSettings()"
+               onchange="setSettings()">
+    </div>
+
+    <!-- KEYPRESS DELAY -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Keypress delay (ms)</div>
+        <input type="number"
+               class="sdpi-item-value sdProperty"
+               id="keypressDelayMs"
+               min="0"
+               oninput="setSettings()"
+               onchange="setSettings()">
+    </div>
+
+    <!-- SOUND: SHORT PRESS -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Sound (short)</div>
+        <div class="sdpi-item-value">
+            <div class="sdpi-item-group file">
+                <input class="sdpi-item-value sdProperty sdFile"
+                       type="file"
+                       id="shortPressSound"
+                       accept=".wav"
+                       oninput="setSettings(); updateClearButtons();"
+                       onchange="setSettings(); updateClearButtons();">
+                <label class="sdpi-file-info" id="shortPressSoundFilename">No file…</label>
+                <label class="sdpi-file-label" for="shortPressSound">Choose file…</label>
+            </div>
+            <button class="sdpi-item-value small-btn hidden"
+                    id="btnClearShort"
+                    onclick="clearSound('shortPressSound')">
+                Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- SOUND: LONG PRESS -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Sound (long)</div>
+        <div class="sdpi-item-value">
+            <div class="sdpi-item-group file">
+                <input class="sdpi-item-value sdProperty sdFile"
+                       type="file"
+                       id="longPressSound"
+                       accept=".wav"
+                       oninput="setSettings(); updateClearButtons();"
+                       onchange="setSettings(); updateClearButtons();">
+                <label class="sdpi-file-info" id="longPressSoundFilename">No file…</label>
+                <label class="sdpi-file-label" for="longPressSound">Choose file…</label>
+            </div>
+            <button class="sdpi-item-value small-btn hidden"
+                    id="btnClearLong"
+                    onclick="clearSound('longPressSound')">
+                Clear
+            </button>
+        </div>
     </div>
 
     <div class="sdpi-item no-results hidden" id="noResults">
         No functions match your search.
     </div>
-
 </div>
 
 <script>
@@ -94,7 +155,6 @@
     let functionsLoaded = false;
     let savedFunctionValue = null;
 
-    /* Preserve function value while dropdown loads */
     const originalLoadConfiguration = loadConfiguration;
     loadConfiguration = function (payload) {
         if (payload && payload.function !== undefined) {
@@ -103,12 +163,23 @@
 
         originalLoadConfiguration(payload);
 
+        if (payload) {
+            if (typeof payload.stateOn === 'boolean') {
+                const el = document.getElementById('stateOn');
+                if (el) el.checked = payload.stateOn;
+            }
+            if (typeof payload.softSyncLongPress === 'boolean') {
+                const el = document.getElementById('softSyncLongPress');
+                if (el) el.checked = payload.softSyncLongPress;
+            }
+        }
+
         if (functionsLoaded && savedFunctionValue) {
             const sel = document.getElementById('function');
             if (sel) sel.value = savedFunctionValue;
         }
 
-        updateClearSoundVisibility();
+        updateClearButtons();
     };
 
     function populateDropdown(functionsData) {
@@ -167,6 +238,7 @@
         document.querySelectorAll('#function optgroup').forEach(group => {
             const hasVisible = Array.from(group.children)
                 .some(o => o.style.display !== 'none');
+
             group.style.display = hasVisible ? '' : 'none';
             if (hasVisible) visibleGroups++;
         });
@@ -177,34 +249,44 @@
             : '';
     }
 
-    function clearClickSound() {
-        const input = document.getElementById('clickSound');
-        const label = document.getElementById('clickSoundFilename');
+    function clearSound(inputId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(inputId + "Filename");
 
         if (input) input.value = '';
-        if (label) label.textContent = 'No file...';
+        if (label) label.textContent = 'No file…';
 
-        setSettings({ clickSound: '' });
-        updateClearSoundVisibility();
+        const patch = {};
+        patch[inputId] = '';
+        setSettings(patch);
+
+        updateClearButtons();
     }
 
-    function updateClearSoundVisibility() {
-        const input = document.getElementById('clickSound');
-        const clearBtn = document.getElementById('dvClearSound');
-        if (!input || !clearBtn) return;
-        clearBtn.classList.toggle('hidden', !input.value);
+    function updateClearButtons() {
+        const shortInput = document.getElementById('shortPressSound');
+        const longInput = document.getElementById('longPressSound');
+
+        const btnShort = document.getElementById('btnClearShort');
+        const btnLong = document.getElementById('btnClearLong');
+
+        if (btnShort && shortInput) btnShort.classList.toggle('hidden', !shortInput.value);
+        if (btnLong && longInput) btnLong.classList.toggle('hidden', !longInput.value);
     }
 
-    /* Receive function list from plugin */
     document.addEventListener('websocketCreate', function () {
         const originalOnMessage = websocket.onmessage;
+
         websocket.onmessage = function (evt) {
             const jsonObj = JSON.parse(evt.data);
+
             if (jsonObj.event === 'sendToPropertyInspector'
                 && jsonObj.payload
                 && jsonObj.payload.functionsLoaded) {
+
                 populateDropdown(jsonObj.payload.functions);
             }
+
             if (originalOnMessage) {
                 originalOnMessage.call(this, evt);
             }
@@ -224,7 +306,7 @@
                 document.getElementById('searchResults').textContent = '';
             });
 
-        updateClearSoundVisibility();
+        updateClearButtons();
     });
 </script>
 

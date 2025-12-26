@@ -5,6 +5,51 @@
 
 ## Changelog
 
+## v1.1.6
+
+### New
+- **Cosmetic Key** action (visual-only tile):
+  - Adds a new Stream Deck action under the Star Citizen category.
+  - Does not send any keybinds or events (purely cosmetic).
+  - Uses a custom action icon in the Stream Deck actions list.
+
+
+## v1.1.5
+
+### New Features
+- **State Memory (Soft Sync Toggle)**:
+  - Adds a persistent ON/OFF memory toggle for Star Citizen functions
+  - **Short press:** sends keybind + toggles button indicator
+  - **Long press:** toggles indicator only (no key sent) for manual soft sync
+  - Includes optional **Short Press Sound** and **Long Press Sound**
+  - Helps keep Stream Deck button state in sync with in-game systems (landing gear, lights, VTOL, doors, etc.)
+
+### UI Improvements
+- Compact Property Inspector layout (less scrolling)
+- Hint text integrated directly below Memory toggle
+- Two separate file pickers for short and long press sounds
+
+### Technical Changes
+- Cleaned up visual state handling and race conditions on rapid presses
+
+
+## v1.1.4
+
+### New Features
+- **Momentary Button (New Action)**:
+  - One-shot Star Citizen keybind execution (non-toggle)
+  - Temporary visual state with automatic revert
+  - User-configurable delay (milliseconds)
+  - Supports two images via Stream Deck UI (idle / active)
+  - Function selector with full search support
+
+### Technical Changes
+- Added `Momentary.cs` action based on Static button architecture
+- Added `Momentary.html` Property Inspector
+- Reused dynamic function loading and WebSocket communication system
+- Improved Property Inspector persistence handling for numeric inputs
+
+
 ## v1.1.3a
 
 ### Bug Fixes
