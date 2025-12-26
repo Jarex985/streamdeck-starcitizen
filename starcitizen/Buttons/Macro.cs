@@ -167,14 +167,16 @@ namespace starcitizen.Buttons
             Connection.SetSettingsAsync(JObject.FromObject(settings)).Wait();
         }
 
-        private void Connection_OnPropertyInspectorDidAppear(object sender, SDEventReceivedEventArgs<PropertyInspectorDidAppear> e)
+        private void Connection_OnPropertyInspectorDidAppear(object sender, EventArgs e)
         {
             UpdatePropertyInspector();
         }
 
-        private void Connection_OnSendToPlugin(object sender, SDEventReceivedEventArgs<SendToPlugin> e)
+        private void Connection_OnSendToPlugin(object sender, EventArgs e)
         {
-            if (e?.Event?.Payload?["property_inspector"]?.ToString() == "propertyInspectorConnected")
+            var payload = e.ExtractPayload();
+
+            if (payload?["property_inspector"]?.ToString() == "propertyInspectorConnected")
             {
                 UpdatePropertyInspector();
             }

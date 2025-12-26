@@ -183,6 +183,7 @@
     <Compile Include="Buttons\Dial.cs" />
     <Compile Include="Buttons\Momentary.cs" />
     <Compile Include="Buttons\StreamDeckCommon.cs" />
+    <Compile Include="Buttons\StreamDeckEventArgsExtensions.cs" />
     <Compile Include="Buttons\StarCitizenKeypadBase.cs" />
     <Compile Include="Buttons\Macro.cs" />
     <Compile Include="Buttons\Static.cs" />
