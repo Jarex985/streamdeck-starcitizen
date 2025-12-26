@@ -33,7 +33,7 @@
     {
       "Icon": "Images/pluginIcon",
       "Name": "Dial Button",
-      "Controllers": [ "Encoder" ],
+      "Controllers": ["Encoder"],
       "States": [
         {
           "Image": "Images/pluginIcon"
@@ -67,6 +67,27 @@
       "Tooltip": "Star Citizen Momentary Button",
       "UUID": "com.mhwlng.starcitizen.momentary",
       "PropertyInspectorPath": "PropertyInspector/StarCitizen/Momentary.html"
+    },
+
+    {
+      "Icon": "Images/icon",
+      "Name": "State Memory (Soft Sync Toggle)",
+      "States": [
+        {
+          "Image": "Images/Default",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        },
+        {
+          "Image": "Images/Default",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Star Citizen State Memory (Soft Sync Toggle)",
+      "UUID": "com.mhwlng.starcitizen.statememory",
+      "PropertyInspectorPath": "PropertyInspector/StarCitizen/StateMemory.html"
     }
   ],
   "Author": "mhwlng",

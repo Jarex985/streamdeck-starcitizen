@@ -5,6 +5,25 @@
 
 ## Changelog
 
+## v1.1.5
+
+### New Features
+- **State Memory (Soft Sync Toggle)**:
+  - Adds a persistent ON/OFF memory toggle for Star Citizen functions
+  - **Short press:** sends keybind + toggles button indicator
+  - **Long press:** toggles indicator only (no key sent) for manual soft sync
+  - Includes optional **Short Press Sound** and **Long Press Sound**
+  - Helps keep Stream Deck button state in sync with in-game systems (landing gear, lights, VTOL, doors, etc.)
+
+### UI Improvements
+- Compact Property Inspector layout (less scrolling)
+- Hint text integrated directly below Memory toggle
+- Two separate file pickers for short and long press sounds
+
+### Technical Changes
+- Cleaned up visual state handling and race conditions on rapid presses
+
+
 ## v1.1.4
 
 ### New Features
