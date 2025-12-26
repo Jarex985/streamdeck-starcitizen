@@ -473,8 +473,13 @@ namespace SCJMapper_V2.SC
             return null;
         }
 
-        public void CreateCsv()
+        public void CreateCsv(bool enableCsvExport)
         {
+            if (!enableCsvExport)
+            {
+                return;
+            }
+
             try
             {
                 using (StreamWriter outputFile =
