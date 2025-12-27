@@ -53,7 +53,7 @@ The **State Memory** button is designed for toggleable systems in Star Citizen t
   The Momentary Button is designed for immersive, one-shot actions in Star Citizen where visual feedback matters, but no persistent state is required. Unlike a toggle button, the Momentary Button does not maintain an on/off state.
 
   ### How it works
-  - The user selects a Star Citizen function (same system as the Static Button).
+  - The user selects a Star Citizen function (same system as the Action Key).
   - Two images are configured directly in the Stream Deck UI:
   - **Idle Image** – default appearance.
   - **Active Image** – shown temporarily when the button is pressed.
@@ -68,7 +68,7 @@ The **State Memory** button is designed for toggleable systems in Star Citizen t
   - One-shot action (non-toggle)
   - Temporary visual feedback only
   - Fully configurable delay
-  - Uses the same function selector and search system as the Static Button
+  - Uses the same function selector and search system as the Action Key
   - Supports drag-and-drop images via the Stream Deck UI
 
   ### Example use cases
@@ -193,13 +193,13 @@ Compressed versions (files ending in .scj) are cached in the plugin directory an
 
 You can also delete the .scj files and restart the plugin, to extract the files from the p4k file again.
 
-For easier debugging, installation and testing, `defaultProfile.xml`, `keybindings.csv`, `joystickbindings.csv`, `mousebindings.csv`, `unboundactions.csv` and `PropertyInspector\StarCitizen\Static.html` files are created in the plugin directory.
+For easier debugging, installation and testing, `defaultProfile.xml`, `keybindings.csv`, `joystickbindings.csv`, `mousebindings.csv`, `unboundactions.csv` and `PropertyInspector\StarCitizen\ActionKey.html` files are created in the plugin directory.
 
 The plugin uses all the active keyboard bindings from `defaultProfile.xml` and then overrules some of the bindings, with any custom keyboard bindings from this file :
 
 `C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\USER\Client\0\Profiles\default\actionmaps.xml`
 
-The `PropertyInspector\StarCitizen\Static.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
+The `PropertyInspector\StarCitizen\ActionKey.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
 that didn't have any corresponding keyboard bindings in `defaultProfile.xml`.
 
 If nothing happens, when pressing streamdeck buttons: you could try to start streamdeck.exe as administrator.

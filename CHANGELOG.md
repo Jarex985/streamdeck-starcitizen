@@ -8,7 +8,7 @@
 ## v1.1.8
 
 ### New Features
-- **Increase / Decrease (Hold) Button:**
+- **Repeat Action (Hold) Button:**
   - Fires a selected Star Citizen function immediately on press, then repeats it at a configurable rate while held.
   - Includes Idle/Active images that snap back to idle the moment you release.
   - Optional start/stop sounds for tactile audio feedback.
@@ -61,7 +61,7 @@
   - Function selector with full search support
 
 ### Technical Changes
-- Added `Momentary.cs` action based on Static button architecture
+- Added `Momentary.cs` action based on Action Key architecture
 - Added `Momentary.html` Property Inspector
 - Reused dynamic function loading and WebSocket communication system
 - Improved Property Inspector persistence handling for numeric inputs
@@ -70,10 +70,10 @@
 ## v1.1.3a
 
 ### Bug Fixes
-- **Buttons**: Corrected an issue where the plugin failed to save a new assigned Function to a Static button after changing it in the Property Inspector.
+- **Buttons**: Corrected an issue where the plugin failed to save a new assigned Function to an Action Key after changing it in the Property Inspector.
 
 ### Technical Changes 
-- **Simplified Static Button**: Removed obsolete template generation system. The Static button Property Inspector (`Static.html`) is now maintained directly 
+- **Simplified Action Key**: Removed obsolete template generation system. The Action Key Property Inspector (`ActionKey.html`) is now maintained directly 
   instead of being generated from a template file, making future updates easier.
   - statictemplate.html is still inside the Plugin for now, will be removed in future versions.
 
@@ -86,17 +86,13 @@
   - Parses launcher log files as a fallback
 
 
-- **Currently only available for the Static Button:**
+- **Currently only available for the Action Key:**
   - **Search Functionality**: Added a search box to find Keybindings faster in the dropdown list
   - **Dynamic Function Loading**: Functions are now loaded dynamically via WebSocket communication instead of hardcoded HTML Option Values
 
 
 ### Technical Changes
-- `Static.cs`: Added SDK event handlers (`OnPropertyInspectorDidAppear`, `OnSendToPlugin`) for proper Property Inspector communication
-- `Static.html` / `statictemplate.html`: Implemented dynamic dropdown population via JSON WebSocket messages
+- `ActionKey.cs`: Added SDK event handlers (`OnPropertyInspectorDidAppear`, `OnSendToPlugin`) for proper Property Inspector communication
+- `ActionKey.html` / `statictemplate.html`: Implemented dynamic dropdown population via JSON WebSocket messages
 - `SCPath.cs`: Added `FindInstallationFromRSILauncher()` method and improved `IsValidStarCitizenInstallation()` to support multiple directory structures
 - `DProfileReader.cs`: Simplified `CreateStaticHtml()` to just copy template (dropdown now populated dynamically)
-
-
-
-

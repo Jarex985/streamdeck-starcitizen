@@ -19,7 +19,7 @@ namespace starcitizen.Buttons
 {
 
     [PluginActionId("com.mhwlng.starcitizen.static")]
-    public class Static : StarCitizenKeypadBase
+    public class ActionKey : StarCitizenKeypadBase
     {
         protected class PluginSettings
         {
@@ -47,7 +47,7 @@ namespace starcitizen.Buttons
         private CachedSound _clickSound = null;
 
 
-        public Static(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public ActionKey(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {

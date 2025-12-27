@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 namespace starcitizen.Buttons
 {
     [PluginActionId("com.mhwlng.starcitizen.holdrepeat")]
-    public class IncreaseDecreaseHold : StarCitizenKeypadBase
+    public class Repeataction : StarCitizenKeypadBase
     {
         protected class PluginSettings
         {
@@ -38,7 +38,7 @@ namespace starcitizen.Buttons
         private int currentRepeatRate = 100;
         private bool isRepeating;
 
-        public IncreaseDecreaseHold(SDConnection connection, InitialPayload payload)
+        public Repeataction(SDConnection connection, InitialPayload payload)
             : base(connection, payload)
         {
             settings = PluginSettings.CreateDefaultSettings();
