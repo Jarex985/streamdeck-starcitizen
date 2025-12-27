@@ -22,16 +22,16 @@ namespace starcitizen
                 return string.Empty;
             }
 
-            var keyTokens = GetKeyTokens(keyboard);
+            var keys = keyboard.Split('+', StringSplitOptions.RemoveEmptyEntries);
 
-            if (keyTokens.Count == 0)
+            if (keys.Length == 0)
             {
                 Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyString received no usable key tokens after splitting. Skipping send.");
                 return string.Empty;
             }
 
             var builder = new StringBuilder();
-            foreach (var key in keyTokens)
+            foreach (var key in keys)
             {
                 builder.Append('{').Append(FromSCKeyboardCmd(key)).Append('}');
             }
@@ -47,16 +47,16 @@ namespace starcitizen
                 return string.Empty;
             }
 
-            var keyTokens = GetKeyTokens(keyboard);
+            var keys = keyboard.Split('+', StringSplitOptions.RemoveEmptyEntries);
 
-            if (keyTokens.Count == 0)
+            if (keys.Length == 0)
             {
                 Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyStringToLocale received no usable key tokens after splitting. Skipping send.");
                 return string.Empty;
             }
 
             var builder = new StringBuilder();
-            foreach (var key in keyTokens)
+            foreach (var key in keys)
             {
                 var dikKey = FromSCKeyboardCmd(key);
 
@@ -668,39 +668,6 @@ namespace starcitizen
             }
 
             return builder.ToString();
-        }
-
-        private static List<string> GetKeyTokens(string keyboard)
-        {
-            var tokens = new List<string>();
-            if (keyboard == null)
-            {
-                return tokens;
-            }
-
-            var current = new StringBuilder();
-            foreach (var ch in keyboard)
-            {
-                if (ch == '+')
-                {
-                    if (current.Length > 0)
-                    {
-                        tokens.Add(current.ToString());
-                        current.Clear();
-                    }
-                }
-                else
-                {
-                    current.Append(ch);
-                }
-            }
-
-            if (current.Length > 0)
-            {
-                tokens.Add(current.ToString());
-            }
-
-            return tokens;
         }
 
         private static DirectInputKeyCode FromSCKeyboardCmd(string scKey)
