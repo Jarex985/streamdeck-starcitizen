@@ -89,6 +89,26 @@
       "PropertyInspectorPath": "PropertyInspector/StarCitizen/DualAction.html"
     },
     {
+      "Icon": "Images/Momentary0",
+      "Name": "Increase / Decrease (Hold)",
+      "States": [
+        {
+          "Image": "Images/Momentary0",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        },
+        {
+          "Image": "Images/Momentary1",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Hold to repeat a Star Citizen function until released",
+      "UUID": "com.mhwlng.starcitizen.holdrepeat",
+      "PropertyInspectorPath": "PropertyInspector/StarCitizen/IncreaseDecreaseHold.html"
+    },
+    {
       "Icon": "Images/Cosmetic",
       "Name": "Cosmetic Key",
       "States": [
@@ -128,7 +148,7 @@
   "Name": "Star Citizen",
   "Icon": "Images/pluginIcon",
   "URL": "https://github.com/mhwlng/streamdeck-starcitizen",
-  "Version": "1.1.7",
+  "Version": "1.1.8",
   "CodePath": "com.mhwlng.starcitizen",
   "Category": "Star Citizen",
   "CategoryIcon": "Images/categoryIcon",

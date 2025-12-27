@@ -76,6 +76,27 @@
 			- System priming or initialization
 			- Any action where a brief visual cue improves immersion
 
+		## Increase / Decrease (Hold)
+			The **Increase / Decrease (Hold)** button repeatedly sends a Star Citizen function while the button stays pressed—perfect for incremental adjustments that mirror holding a keyboard key or HOTAS control.
+
+			### How it works
+			- **Press and hold:** Sends the selected function immediately, then repeats it automatically at the configured repeat rate until you release the button.
+			- **Release:** Repetition stops instantly and the button returns to the Idle Image with no lingering state.
+			- **Visual feedback:** Uses two images—**Idle** (not pressed) and **Active** (while held). The Active image only shows during the hold.
+			- **Audio cues (optional):** Configure separate sounds for repetition start and stop.
+
+			### Key settings
+			- **Star Citizen Function:** Any mapped function that benefits from continuous input (throttle nudges, gimbal assist, menu scrolling, etc.).
+			- **Repeat Rate (ms):** Controls how quickly the function re-triggers while held. Recommended presets:
+			  - 60–80ms: fast/combat
+			  - 100ms: default
+			  - 120–150ms: precise
+			- **Idle Image / Active Image:** Shown when not pressed vs. during the hold. Always snaps back to Idle on release.
+			- **Start / Stop Sound (optional):** Short cues when the repeating loop starts or stops.
+
+			### One-line summary
+				Hold to adjust continuously. Release to stop and return to idle instantly.
+
 
 ## What's New in This Fork
 
