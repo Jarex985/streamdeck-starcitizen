@@ -12,65 +12,155 @@
 - **Simplified Configuration** - Only need to set `SCBasePath` if auto-detection fails (instead of SCData_p4k and SCClientProfilePath).
 - **Bug Fixes & Improvements** - Various fixes to improve stability and usability.
 
+## V2 Full Release
 
-🚀 Star Citizen Stream Deck Plugin — V2 Full Release (Major Refactor)
+V2 is a full release with a **major code refactor** focused on stability, maintainability, and a cleaner Property Inspector experience.
 
-V2 is a major refactor + stability pass focused on making the plugin easier to maintain, more reliable under rapid presses, and much nicer to configure. This release also expands the action lineup with purpose-built buttons for common Star Citizen workflows (toggle systems, momentary actions, hold/repeat controls, etc.). 
+When the plugin starts, it reads Star Citizen bindings and text resources so it can populate the function list. Depending on your install and drive speed, the first load can take a few seconds.
 
-✅ Actions (Buttons) Explained + Use Cases
-1) Action Key (Classic “send SC bind”)
-What it does: A simple Star Citizen function sender using the game’s keyboard binding files. It behaves like a standard Stream Deck “hotkey” style action (press = key down, release = key up). 
+The plugin logs useful startup and detection details in:
 
-Use cases: Anything you want as a normal “press = hold / release = stop” behavior (depending on how SC handles the bind).
+`%appdata%\Elgato\StreamDeck\Plugins\com.mhwlng.starcitizen.sdPlugin\pluginlog.log`
 
-2) State Memory (Soft Sync Toggle)
-What it does: A toggle-style button with internal ON/OFF memory, built for Star Citizen systems that don’t provide real feedback to the plugin. 
+---
 
-Short press: sends the selected SC keybind + flips Stream Deck ON/OFF state
-Long press: flips ON/OFF state without sending a key (manual resync)
-Optional sounds for short/long press
+## What’s improved in V2
 
-Use cases: Landing gear, lights, VTOL, doors, power toggles — anything where the “real” state can change outside the Stream Deck and you want a quick manual resync.
+**This release includes a major internal refactor:**
 
-3) Momentary Button
-What it does: A one-shot Star Citizen keybind with temporary visual feedback.
+1. **Stability improvements** - Better behavior under fast tapping / repeated presses
+2. **Cleaner structure** - Easier to maintain and evolve long-term
+3. **Improved Property Inspector experience** - Faster function selection and more consistent UI
+4. **More consistent action behavior** - Actions now follow clearer rules across buttons
 
-Sends the keybind once
-Switches to an Active image immediately
-After configurable delay (ms) returns to Idle image
+---
 
-Use cases: Engine start, system prime, “confirm” style actions, immersion cues, or anything where a brief “active” icon makes the deck feel alive without being a toggle.
+## Buttons (Actions) — What they do
 
-4) Dual Action (Hold/Release)
-What it does: Sends one binding on press and a second binding on release, with a 2-state icon so the button visually changes while held. 
+### ActionKey
 
-Use cases:
-Hold-to-engage / release-to-disengage patterns
-Charging / spool behaviors
-Temporary mode holds
-“Open while held / revert on release” style control logic (where SC binds allow it)
+Sends the selected Star Citizen function (keyboard bind).
 
-5) Repeat Action (Hold)
-What it does: Fires the selected function immediately, then repeats at a configured interval while held. Releases instantly back to idle state. Optional start/stop sounds. 
+**Use cases:**
 
-Use cases:
-Power/shield management “nudge” controls
-Increment/decrement actions
-Any command you want to “spam” cleanly while holding (instead of multiple taps)
+1. Standard “press to trigger” commands
+2. Any binding you want to behave like a normal key press
 
-6) Cosmetic Key (Visual Only)
+---
 
-What it does: A non-interactive tile: no keybinds, no events. It’s purely for layout/organization.
-Use cases: Section headers, separators, category icons, “labels” for multi-page profiles, aesthetic panels.
+### State Memory (Soft Sync Toggle)
 
+A dedicated toggle-style action designed for Star Citizen systems with **no reliable state feedback**.
 
-🐛 Please Report Issues (V2 Feedback Helps a Lot)
+**Behavior:**
 
-If you hit a bug or a weird behavior, please open an Issue and include:
-	Plugin version (V2.x) + Stream Deck version
-	Star Citizen channel: LIVE / PTU
-	Which action type: Action Key / State Memory / Momentary / Dual Action / Repeat / Cosmetic
-	Steps to reproduce (what you press, how fast, expected vs actual)
+1. **Short press** - Sends the selected Star Citizen keybind and flips the internal ON/OFF state
+2. **Long press** - Flips the internal ON/OFF state only (manual “resync” without sending a key)
+
+**Use cases:**
+
+1. Lights, landing gear, VTOL, doors, power toggles
+2. Situations where the real in-game state can change outside Stream Deck and you want a quick manual resync
+
+---
+
+### Momentary
+
+A one-shot action with temporary visual feedback.
+
+**Behavior:**
+
+1. Press sends the selected function once
+2. Switches to an active image state briefly
+3. Returns to idle image state after the configured delay
+
+**Use cases:**
+
+1. Engine start / system triggers
+2. Confirmation actions
+3. Immersion feedback without a persistent toggle
+
+---
+
+### Dual Action
+
+Two-stage behavior tied to press and release.
+
+**Behavior:**
+
+1. **Press (key down)** triggers Action A
+2. **Release (key up)** triggers Action B
+3. Optional 2-state image behavior (pressed vs released)
+
+**Use cases:**
+
+1. Hold-to-engage / release-to-disengage patterns
+2. Temporary modes
+3. Spool / charge style workflows (depending on your binds)
+
+---
+
+### Action Delay
+
+A timed action with a cancel window.
+
+**Behavior:**
+
+1. Tap starts a timer and shows an “armed/pending” state
+2. When the delay ends, the selected function triggers and the button shows an “executed” state briefly
+3. Then it returns to idle
+4. Tap again while pending cancels the timer
+
+**Use cases:**
+
+1. Safer actions (gives you time to cancel before it fires)
+2. Timed sequences where you want a clear “armed → executed → idle” flow
+3. Any workflow where a delayed trigger feels better than an instant press
+
+---
+
+### Increase/Decrease (Hold Repeat)
+
+Press-and-hold repeat behavior.
+
+**Behavior:**
+
+1. Press triggers immediately
+2. While held, repeats the selected function at the configured interval
+3. Stops instantly on release and returns to idle image
+
+**Use cases:**
+
+1. Power / cooling / shield management adjustments
+2. Increment/decrement controls where holding feels better than tapping repeatedly
+
+---
+
+### Cosmetic
+
+Visual-only tile (no keybind, no action).
+
+**Use cases:**
+
+1. Section headers and separators
+2. Organizing pages and profiles
+3. Aesthetic/branding tiles
+
+---
+
+## Reporting issues (please include this)
+
+If something is wrong or inconsistent, open an Issue and include:
+
+1. Plugin version (V2.x) and Stream Deck version
+2. Which button (ActionKey / State Memory / Momentary / Dual Action / Action Delay / Hold Repeat / Cosmetic)
+3. Exact steps to reproduce (what you pressed, how fast, expected vs actual)
+4. The log file:
+
+`%appdata%\Elgato\StreamDeck\Plugins\com.mhwlng.starcitizen.sdPlugin\pluginlog.log`
+
+If the report includes clear steps + the log, I can reproduce it and fix it much faster.
+
 
 ---
 # Original README:
