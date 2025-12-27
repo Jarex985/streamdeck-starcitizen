@@ -177,11 +177,13 @@
     <Compile Include="Audio\AutoDisposeFileReader.cs" />
     <Compile Include="Audio\CachedSound.cs" />
     <Compile Include="Audio\CachedSoundSampleProvider.cs" />
+    <Compile Include="Buttons\ActionDelay.cs" />
     <Compile Include="Buttons\CosmeticKey.cs" />
     <Compile Include="Buttons\DualAction.cs" />
     <Compile Include="Buttons\StateMemory.cs" />
     <Compile Include="Buttons\StarCitizenDialBase.cs" />
     <Compile Include="Buttons\Dial.cs" />
+    <Compile Include="Buttons\ActionDelay.cs" />
     <Compile Include="Buttons\IncreaseDecreaseHold.cs" />
     <Compile Include="Buttons\Momentary.cs" />
     <Compile Include="Buttons\StreamDeckCommon.cs" />
@@ -306,6 +308,9 @@
     <Content Include="PropertyInspector\sdtools.common.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="PropertyInspector\StarCitizen\Actiondelay.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="PropertyInspector\StarCitizen\Macro.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -322,6 +327,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="PropertyInspector\StarCitizen\IncreaseDecreaseHold.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PropertyInspector\StarCitizen\ActionDelay.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="PropertyInspector\StarCitizen\Static.html">
