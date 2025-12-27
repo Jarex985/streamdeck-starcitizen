@@ -1,34 +1,19 @@
 {
   "Actions": [
     {
-      "Icon": "Images/Static",
-      "Name": "Static Button",
+      "Icon": "Images/ActionKey",
+      "Name": "Action Key",
       "States": [
         {
-          "Image": "Images/Static",
+          "Image": "Images/ActionKey",
           "TitleAlignment": "bottom",
           "FontSize": "8"
         }
       ],
       "SupportedInMultiActions": true,
-      "Tooltip": "Star Citizen Static Button",
+      "Tooltip": "Star Citizen Action Key",
       "UUID": "com.mhwlng.starcitizen.static",
-      "PropertyInspectorPath": "PropertyInspector/StarCitizen/Static.html"
-    },
-    {
-      "Icon": "Images/Default",
-      "Name": "Multi-Action Button",
-      "States": [
-        {
-          "Image": "Images/Default",
-          "TitleAlignment": "bottom",
-          "FontSize": "8"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Star Citizen Multi-Action Button",
-      "UUID": "com.mhwlng.starcitizen.macro",
-      "PropertyInspectorPath": "PropertyInspector/StarCitizen/Macro.html"
+      "PropertyInspectorPath": "PropertyInspector/StarCitizen/ActionKey.html"
     },
     {
       "Icon": "Images/pluginIcon",
@@ -69,16 +54,16 @@
       "PropertyInspectorPath": "PropertyInspector/StarCitizen/Momentary.html"
     },
     {
-      "Icon": "Images/Momentary0",
+      "Icon": "Images/Dualaction0",
       "Name": "Dual Action Button",
       "States": [
         {
-          "Image": "Images/Momentary0",
+          "Image": "Images/Dualaction0",
           "TitleAlignment": "bottom",
           "FontSize": "8"
         },
         {
-          "Image": "Images/Momentary1",
+          "Image": "Images/Dualaction1",
           "TitleAlignment": "bottom",
           "FontSize": "8"
         }
@@ -89,16 +74,16 @@
       "PropertyInspectorPath": "PropertyInspector/StarCitizen/DualAction.html"
     },
     {
-      "Icon": "Images/Momentary0",
-      "Name": "Increase / Decrease (Hold)",
+      "Icon": "Images/Repeataction0",
+      "Name": "Repeat Action",
       "States": [
         {
-          "Image": "Images/Momentary0",
+          "Image": "Images/Repeataction0",
           "TitleAlignment": "bottom",
           "FontSize": "8"
         },
         {
-          "Image": "Images/Momentary1",
+          "Image": "Images/Repeataction1",
           "TitleAlignment": "bottom",
           "FontSize": "8"
         }
@@ -106,7 +91,27 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Hold to repeat a Star Citizen function until released",
       "UUID": "com.mhwlng.starcitizen.holdrepeat",
-      "PropertyInspectorPath": "PropertyInspector/StarCitizen/IncreaseDecreaseHold.html"
+      "PropertyInspectorPath": "PropertyInspector/StarCitizen/Repeataction.html"
+    },
+    {
+      "Icon": "Images/ActionDelay0",
+      "Name": "Action Delay",
+      "States": [
+        {
+          "Image": "Images/ActionDelay0",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        },
+        {
+          "Image": "Images/ActionDelay1",
+          "TitleAlignment": "bottom",
+          "FontSize": "8"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Tap to arm, hold to abort, wait to execute a Star Citizen function",
+      "UUID": "com.mhwlng.starcitizen.actiondelay",
+      "PropertyInspectorPath": "PropertyInspector/StarCitizen/ActionDelay.html"
     },
     {
       "Icon": "Images/Cosmetic",
@@ -148,7 +153,7 @@
   "Name": "Star Citizen",
   "Icon": "Images/pluginIcon",
   "URL": "https://github.com/mhwlng/streamdeck-starcitizen",
-  "Version": "1.1.8",
+  "Version": "1.1.9",
   "CodePath": "com.mhwlng.starcitizen",
   "Category": "Star Citizen",
   "CategoryIcon": "Images/categoryIcon",

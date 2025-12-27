@@ -177,18 +177,18 @@
     <Compile Include="Audio\AutoDisposeFileReader.cs" />
     <Compile Include="Audio\CachedSound.cs" />
     <Compile Include="Audio\CachedSoundSampleProvider.cs" />
+    <Compile Include="Buttons\ActionDelay.cs" />
     <Compile Include="Buttons\CosmeticKey.cs" />
     <Compile Include="Buttons\DualAction.cs" />
     <Compile Include="Buttons\StateMemory.cs" />
     <Compile Include="Buttons\StarCitizenDialBase.cs" />
     <Compile Include="Buttons\Dial.cs" />
-    <Compile Include="Buttons\IncreaseDecreaseHold.cs" />
+    <Compile Include="Buttons\Repeataction.cs" />
     <Compile Include="Buttons\Momentary.cs" />
     <Compile Include="Buttons\StreamDeckCommon.cs" />
     <Compile Include="Buttons\StreamDeckEventArgsExtensions.cs" />
     <Compile Include="Buttons\StarCitizenKeypadBase.cs" />
-    <Compile Include="Buttons\Macro.cs" />
-    <Compile Include="Buttons\Static.cs" />
+    <Compile Include="Buttons\ActionKey.cs" />
     <Compile Include="CommandTools.cs" />
     <Compile Include="CryXMLlib\Conversions.cs" />
     <Compile Include="CryXMLlib\CryIXml.cs" />
@@ -248,14 +248,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="check_updates.ps1" />
-    <Content Include="Images\categoryIcon%402x.png">
+    <Content Include="Images\ActionDelay0.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\categoryIcon.png">
+    <Content Include="Images\ActionDelay1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\Cosmetic.png" />
+    <Content Include="Images\ActionKey.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\categoryIcon.png" />
+    <Content Include="Images\Cosmetic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\Default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Dualaction0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Dualaction1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\icon%402x.png">
@@ -264,8 +276,12 @@
     <Content Include="Images\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\Momentary0.png" />
-    <Content Include="Images\Momentary1.png" />
+    <Content Include="Images\Momentary0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Momentary1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\pluginDialIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -275,9 +291,18 @@
     <Content Include="Images\pluginIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\Statememory0.png" />
-    <Content Include="Images\Statememory1.png" />
-    <Content Include="Images\Static.png" />
+    <Content Include="Images\Repeataction0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Repeataction1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Statememory0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Statememory1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="PropertyInspector\caret.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -311,9 +336,6 @@
     <Content Include="PropertyInspector\sdtools.common.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="PropertyInspector\StarCitizen\Macro.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="PropertyInspector\StarCitizen\Dial.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -326,10 +348,13 @@
     <Content Include="PropertyInspector\StarCitizen\DualAction.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="PropertyInspector\StarCitizen\IncreaseDecreaseHold.html">
+    <Content Include="PropertyInspector\StarCitizen\Repeataction.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="PropertyInspector\StarCitizen\Static.html">
+    <Content Include="PropertyInspector\StarCitizen\ActionDelay.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PropertyInspector\StarCitizen\ActionKey.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Sounds\257357__brnck__button-click.wav">

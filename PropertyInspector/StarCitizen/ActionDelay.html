@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <title>Star Citizen – Macro Button</title>
+    <title>Star Citizen – Action Delay</title>
 
     <link rel="stylesheet" href="../sdpi.css">
     <link rel="stylesheet" href="../jquery.highlight-within-textarea.css">
@@ -25,6 +25,11 @@
         }
         .hidden {
             display: none !important;
+        }
+        .hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -52,11 +57,70 @@
                 id="function"
                 oninput="setSettings()"
                 onchange="setSettings()">
-            <option value="">Loading Star Citizen functions...</option>
+            <option value="">
+                Loading Star Citizen functions...
+            </option>
         </select>
     </div>
 
-    <!-- CLICK SOUND -->
+    <!-- EXECUTION DELAY -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Execution Delay (ms)</div>
+        <input type="number"
+               class="sdpi-item-value sdProperty"
+               id="executionDelayMs"
+               min="100"
+               max="5000"
+               step="50"
+               oninput="setSettings()"
+               onchange="setSettings()">
+        <div class="sdpi-item-value hint">Delay between tap and action execution.</div>
+    </div>
+
+    <!-- CONFIRMATION DURATION -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Confirmation Duration (ms)</div>
+        <input type="number"
+               class="sdpi-item-value sdProperty"
+               id="confirmationDurationMs"
+               min="100"
+               max="3000"
+               step="50"
+               oninput="setSettings()"
+               onchange="setSettings()">
+        <div class="sdpi-item-value hint">How long State 1 image is shown after execution.</div>
+    </div>
+
+    <!-- BLINK RATE -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Blink Rate (ms)</div>
+        <input type="number"
+               class="sdpi-item-value sdProperty"
+               id="blinkRateMs"
+               min="100"
+               max="1000"
+               step="50"
+               oninput="setSettings()"
+               onchange="setSettings()">
+        <div class="sdpi-item-value hint">Interval for blinking State 0 while arming.</div>
+    </div>
+
+    <!-- HOLD TO CANCEL -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Hold to Cancel</div>
+        <div class="sdpi-item-value">
+            <label for="holdToCancel" class="sdpi-item-label" style="width: auto;">
+                <input type="checkbox"
+                       class="sdProperty"
+                       id="holdToCancel"
+                       oninput="setSettings()"
+                       onchange="setSettings()">
+                Enabled
+            </label>
+        </div>
+    </div>
+
+    <!-- SOUND -->
     <div class="sdpi-item" id="dvClickSound">
         <div class="sdpi-item-label">Sound</div>
         <div class="sdpi-item-group file">
@@ -66,12 +130,14 @@
                    accept=".wav"
                    oninput="setSettings(); updateClearSoundVisibility();"
                    onchange="setSettings(); updateClearSoundVisibility();">
-            <label class="sdpi-file-info" id="clickSoundFilename">No file...</label>
-            <label class="sdpi-file-label" for="clickSound">Choose file...</label>
+            <label class="sdpi-file-info"
+                   id="clickSoundFilename">No file...</label>
+            <label class="sdpi-file-label"
+                   for="clickSound">Choose file...</label>
         </div>
     </div>
 
-    <!-- CLEAR SOUND BUTTON -->
+    <!-- CLEAR SOUND -->
     <div class="sdpi-item hidden" id="dvClearSound">
         <div class="sdpi-item-label"></div>
         <button class="sdpi-item-value" onclick="clearClickSound()">
@@ -79,19 +145,13 @@
         </button>
     </div>
 
-    <!-- DELAY -->
-    <div class="sdpi-item">
-        <div class="sdpi-item-label">Delay (ms)</div>
-        <input type="number"
-               class="sdpi-item-value sdProperty"
-               id="delay"
-               min="0"
-               oninput="setSettings()"
-               onchange="setSettings()">
-    </div>
-
     <div class="sdpi-item no-results hidden" id="noResults">
         No functions match your search.
+    </div>
+
+    <div class="sdpi-item">
+        <div class="sdpi-item-label"></div>
+        <div class="sdpi-item-value hint">Tap to arm → Hold to abort → Wait to execute.</div>
     </div>
 
 </div>
@@ -101,7 +161,7 @@
     let functionsLoaded = false;
     let savedFunctionValue = null;
 
-    /* Preserve function value until dropdown is ready */
+    /* Preserve function while loading */
     const originalLoadConfiguration = loadConfiguration;
     loadConfiguration = function (payload) {
         if (payload && payload.function !== undefined) {
@@ -110,7 +170,7 @@
 
         originalLoadConfiguration(payload);
 
-        if (functionsLoaded && savedFunctionValue !== null) {
+        if (functionsLoaded && savedFunctionValue) {
             const sel = document.getElementById('function');
             if (sel) sel.value = savedFunctionValue;
         }
@@ -132,14 +192,19 @@
             const optgroup = document.createElement('optgroup');
             optgroup.label = group.label;
 
-            (group.options || []).forEach(opt => {
+            group.options.forEach(opt => {
                 const option = document.createElement('option');
                 option.value = opt.value;
                 option.textContent = opt.text;
-                option.dataset.search = (opt.searchText || opt.text || '').toLowerCase();
+                option.dataset.search = opt.searchText || opt.text.toLowerCase();
 
                 optgroup.appendChild(option);
-                allOptions.push({ option, optgroup, search: option.dataset.search });
+
+                allOptions.push({
+                    option,
+                    optgroup,
+                    search: option.dataset.search
+                });
             });
 
             select.appendChild(optgroup);
@@ -147,11 +212,9 @@
 
         functionsLoaded = true;
 
-        if (savedFunctionValue !== null) {
+        if (savedFunctionValue) {
             select.value = savedFunctionValue;
         }
-
-        filterOptions();
     }
 
     function filterOptions() {
@@ -160,7 +223,8 @@
         const term = document.getElementById('functionSearch').value.toLowerCase().trim();
         const noResults = document.getElementById('noResults');
         const searchResults = document.getElementById('searchResults');
-        const visibleLabels = new Set();
+
+        let visibleGroups = 0;
 
         allOptions.forEach(o => {
             const visible = !term || o.search.includes(term);
@@ -171,13 +235,12 @@
             const hasVisible = Array.from(group.children)
                 .some(o => o.style.display !== 'none');
             group.style.display = hasVisible ? '' : 'none';
-            if (hasVisible) visibleLabels.add(group.label);
+            if (hasVisible) visibleGroups++;
         });
 
-        const count = visibleLabels.size;
-        noResults.classList.toggle('hidden', count > 0);
+        noResults.classList.toggle('hidden', visibleGroups > 0);
         searchResults.textContent = term
-            ? `Found ${count} group${count !== 1 ? 's' : ''}`
+            ? `Found ${visibleGroups} group${visibleGroups !== 1 ? 's' : ''}`
             : '';
     }
 
@@ -199,6 +262,7 @@
         clearBtn.classList.toggle('hidden', !input.value);
     }
 
+    /* Receive function list from plugin */
     document.addEventListener('websocketCreate', function () {
         const originalOnMessage = websocket.onmessage;
         websocket.onmessage = function (evt) {
