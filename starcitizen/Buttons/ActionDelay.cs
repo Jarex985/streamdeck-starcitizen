@@ -157,6 +157,18 @@ namespace starcitizen.Buttons
             base.Dispose();
         }
 
+        public override void OnWillDisappear(StreamDeckEventPayload payload)
+        {
+            ResetToIdle();
+            base.OnWillDisappear(payload);
+        }
+
+        public override void OnDeviceDidDisconnect(DeviceDidDisconnectPayload payload)
+        {
+            ResetToIdle(false);
+            base.OnDeviceDidDisconnect(payload);
+        }
+
         private void BeginPending()
         {
             lock (stateLock)
