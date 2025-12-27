@@ -69,9 +69,16 @@ namespace starcitizen.Buttons
             var action = Program.dpReader.GetBinding(settings.Function);
             if (action != null)
             {
-                StreamDeckCommon.SendKeypressDown(
-                    CommandTools.ConvertKeyString(action.Keyboard)
-                );
+                var keyString = CommandTools.ConvertKeyString(action.Keyboard);
+
+                if (!string.IsNullOrEmpty(keyString))
+                {
+                    StreamDeckCommon.SendKeypressDown(keyString);
+                }
+                else
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"Momentary action '{settings.Function}' missing keyboard binding; skipping KeyPressed send.");
+                }
             }
 
             PlayClickSound();
@@ -84,9 +91,16 @@ namespace starcitizen.Buttons
             var action = Program.dpReader.GetBinding(settings.Function);
             if (action != null)
             {
-                StreamDeckCommon.SendKeypressUp(
-                    CommandTools.ConvertKeyString(action.Keyboard)
-                );
+                var keyString = CommandTools.ConvertKeyString(action.Keyboard);
+
+                if (!string.IsNullOrEmpty(keyString))
+                {
+                    StreamDeckCommon.SendKeypressUp(keyString);
+                }
+                else
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"Momentary action '{settings.Function}' missing keyboard binding; skipping KeyReleased send.");
+                }
             }
 
             // 🔑 ALWAYS prefer live payload value
