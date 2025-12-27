@@ -240,33 +240,24 @@ namespace starcitizen.Buttons
 
         private string ConvertFileToBase64(string path)
         {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                return null;
+            }
+
             try
             {
-                if (string.IsNullOrEmpty(path) || !File.Exists(path))
-                {
-                    return null;
-                }
-
                 var bytes = File.ReadAllBytes(path);
-                var extension = Path.GetExtension(path);
-                if (extension == null)
+                var extension = Path.GetExtension(path)?.ToLowerInvariant();
+                var mime = extension switch
                 {
-                    extension = "";
-                }
-                extension = extension.ToLowerInvariant();
+                    ".jpg" => "image/jpeg",
+                    ".jpeg" => "image/jpeg",
+                    ".gif" => "image/gif",
+                    _ => "image/png"
+                };
 
-                var mime = "image/png";
-                if (extension == ".jpg" || extension == ".jpeg")
-                {
-                    mime = "image/jpeg";
-                }
-                else if (extension == ".gif")
-                {
-                    mime = "image/gif";
-                }
-
-                var base64 = Convert.ToBase64String(bytes);
-                return "data:" + mime + ";base64," + base64;
+                return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
             }
             catch (Exception ex)
             {
