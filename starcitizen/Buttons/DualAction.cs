@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using BarRaider.SdTools;
 using BarRaider.SdTools.Events;
 using BarRaider.SdTools.Wrappers;
@@ -12,8 +10,8 @@ using Newtonsoft.Json.Linq;
 
 namespace starcitizen.Buttons
 {
-    [PluginActionId("com.mhwlng.starcitizen.momentary")]
-    public class Momentary : StarCitizenKeypadBase
+    [PluginActionId("com.mhwlng.starcitizen.dualaction")]
+    public class DualAction : StarCitizenKeypadBase
     {
         protected class PluginSettings
         {
@@ -21,12 +19,16 @@ namespace starcitizen.Buttons
             {
                 return new PluginSettings
                 {
-                    Function = string.Empty
+                    DownFunction = string.Empty,
+                    UpFunction = string.Empty
                 };
             }
 
-            [JsonProperty(PropertyName = "function")]
-            public string Function { get; set; }
+            [JsonProperty(PropertyName = "downFunction")]
+            public string DownFunction { get; set; }
+
+            [JsonProperty(PropertyName = "upFunction")]
+            public string UpFunction { get; set; }
 
             [FilenameProperty]
             [JsonProperty(PropertyName = "clickSound")]
@@ -35,164 +37,91 @@ namespace starcitizen.Buttons
 
         private PluginSettings settings;
         private CachedSound _clickSound;
-        private CancellationTokenSource resetToken;
-        private int visualSequence;
 
-        // 🔑 runtime-authoritative delay (updated via ReceivedSettings)
-        private int currentDelay = 1000;
-
-        public Momentary(SDConnection connection, InitialPayload payload)
+        public DualAction(SDConnection connection, InitialPayload payload)
             : base(connection, payload)
         {
-            settings = PluginSettings.CreateDefaultSettings();
-
-            if (payload.Settings != null)
+            if (payload.Settings == null || payload.Settings.Count == 0)
             {
-                Tools.AutoPopulateSettings(settings, payload.Settings);
-                ParseDelay(payload.Settings);
+                settings = PluginSettings.CreateDefaultSettings();
+                Connection.SetSettingsAsync(JObject.FromObject(settings)).Wait();
+            }
+            else
+            {
+                settings = payload.Settings.ToObject<PluginSettings>();
+                LoadClickSound();
             }
 
             Connection.OnPropertyInspectorDidAppear += Connection_OnPropertyInspectorDidAppear;
             Connection.OnSendToPlugin += Connection_OnSendToPlugin;
             Program.KeyBindingsLoaded += OnKeyBindingsLoaded;
 
-            LoadClickSound();
             UpdatePropertyInspector();
         }
 
-        // ================= KEY EVENTS =================
-
         public override void KeyPressed(KeyPayload payload)
         {
-            if (Program.dpReader == null) return;
-
-            var action = Program.dpReader.GetBinding(settings.Function);
-            if (action != null)
+            if (Program.dpReader == null)
             {
-                StreamDeckCommon.SendKeypressDown(
-                    CommandTools.ConvertKeyString(action.Keyboard)
-                );
+                StreamDeckCommon.ForceStop = true;
+                return;
             }
 
+            StreamDeckCommon.ForceStop = false;
+
+            SendDownAction();
+            _ = Connection.SetStateAsync(1);
             PlayClickSound();
         }
 
         public override void KeyReleased(KeyPayload payload)
         {
-            if (Program.dpReader == null) return;
-
-            var action = Program.dpReader.GetBinding(settings.Function);
-            if (action != null)
+            if (Program.dpReader == null)
             {
-                StreamDeckCommon.SendKeypressUp(
-                    CommandTools.ConvertKeyString(action.Keyboard)
-                );
+                StreamDeckCommon.ForceStop = true;
+                return;
             }
 
-            // 🔑 ALWAYS prefer live payload value
-            int delayToUse = currentDelay;
+            StreamDeckCommon.ForceStop = false;
 
-            if (payload?.Settings != null &&
-                payload.Settings.TryGetValue("delay", out var delayToken) &&
-                int.TryParse(delayToken.ToString(), out int liveDelay))
-            {
-                delayToUse = liveDelay;
-                currentDelay = liveDelay; // keep cache in sync
-            }
-
-            TriggerMomentaryVisual(delayToUse);
+            SendUpAction();
+            _ = Connection.SetStateAsync(0);
         }
 
-        // ================= MOMENTARY VISUAL =================
-
-        private void TriggerMomentaryVisual(int delay)
+        private void SendDownAction()
         {
-            resetToken?.Cancel();
+            var action = Program.dpReader.GetBinding(settings.DownFunction);
+            if (action == null)
+            {
+                return;
+            }
 
-            resetToken = new CancellationTokenSource();
-            var token = resetToken.Token;
-
-            // increment the visual sequence so older cycles cannot override newer ones
-            var sequence = Interlocked.Increment(ref visualSequence);
-
-            _ = RunMomentaryVisualAsync(delay, token, sequence);
+            StreamDeckCommon.SendKeypressDown(CommandTools.ConvertKeyString(action.Keyboard));
         }
 
-        private async Task RunMomentaryVisualAsync(int delay, CancellationToken token, int sequence)
+        private void SendUpAction()
         {
-            // always ensure we start (or restart) at ACTIVE
-            await Connection.SetStateAsync(1);
+            var downAction = Program.dpReader.GetBinding(settings.DownFunction);
+            if (downAction != null)
+            {
+                StreamDeckCommon.SendKeypressUp(CommandTools.ConvertKeyString(downAction.Keyboard));
+            }
 
-            try
+            var upAction = Program.dpReader.GetBinding(settings.UpFunction);
+
+            if (upAction == null || settings.UpFunction == settings.DownFunction)
             {
-                await Task.Delay(Math.Max(0, delay), token);
+                return;
             }
-            catch (TaskCanceledException)
-            {
-                // swallowed; we still want the finally guard below
-            }
-            finally
-            {
-                // only the latest sequence is allowed to revert to idle
-                if (sequence == visualSequence)
-                {
-                    await Connection.SetStateAsync(0); // BACK TO IDLE
-                }
-            }
+
+            StreamDeckCommon.SendKeypress(CommandTools.ConvertKeyString(upAction.Keyboard), 40);
         }
-
-        // ================= SETTINGS =================
 
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
-            if (payload.Settings != null)
-            {
-                Tools.AutoPopulateSettings(settings, payload.Settings);
-                ParseDelay(payload.Settings);
-            }
-
+            Tools.AutoPopulateSettings(settings, payload.Settings);
             LoadClickSound();
         }
-
-        private void ParseDelay(JObject settingsObj)
-        {
-            if (settingsObj.TryGetValue("delay", out var delayToken) &&
-                int.TryParse(delayToken.ToString(), out int parsed))
-            {
-                currentDelay = parsed;
-            }
-        }
-
-        private void LoadClickSound()
-        {
-            _clickSound = null;
-
-            if (!string.IsNullOrEmpty(settings.ClickSoundFilename) &&
-                File.Exists(settings.ClickSoundFilename))
-            {
-                try
-                {
-                    _clickSound = new CachedSound(settings.ClickSoundFilename);
-                }
-                catch
-                {
-                    settings.ClickSoundFilename = null;
-                }
-            }
-        }
-
-        private void PlayClickSound()
-        {
-            if (_clickSound == null) return;
-
-            try
-            {
-                AudioPlaybackEngine.Instance.PlaySound(_clickSound);
-            }
-            catch { }
-        }
-
-        // ================= PROPERTY INSPECTOR =================
 
         private void Connection_OnPropertyInspectorDidAppear(object sender, EventArgs e)
         {
@@ -216,7 +145,10 @@ namespace starcitizen.Buttons
 
         private void UpdatePropertyInspector()
         {
-            if (Program.dpReader == null) return;
+            if (Program.dpReader == null)
+            {
+                return;
+            }
 
             Connection.SendToPropertyInspectorAsync(new JObject
             {
@@ -225,7 +157,40 @@ namespace starcitizen.Buttons
             });
         }
 
-        // ================= FUNCTION LIST (STATIC-PARITY) =================
+        private void LoadClickSound()
+        {
+            _clickSound = null;
+
+            if (!string.IsNullOrEmpty(settings.ClickSoundFilename) &&
+                File.Exists(settings.ClickSoundFilename))
+            {
+                try
+                {
+                    _clickSound = new CachedSound(settings.ClickSoundFilename);
+                }
+                catch
+                {
+                    settings.ClickSoundFilename = null;
+                }
+            }
+        }
+
+        private void PlayClickSound()
+        {
+            if (_clickSound == null)
+            {
+                return;
+            }
+
+            try
+            {
+                AudioPlaybackEngine.Instance.PlaySound(_clickSound);
+            }
+            catch
+            {
+                // intentionally ignore
+            }
+        }
 
         private JArray BuildFunctionsData()
         {
@@ -269,6 +234,18 @@ namespace starcitizen.Buttons
                                 .Replace("{", "")
                                 .Replace("}", "");
                         }
+                        else if (!string.IsNullOrWhiteSpace(action.Mouse))
+                        {
+                            primaryBinding = action.Mouse;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(action.Joystick))
+                        {
+                            primaryBinding = action.Joystick;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(action.Gamepad))
+                        {
+                            primaryBinding = action.Gamepad;
+                        }
 
                         ((JArray)groupObj["options"]).Add(new JObject
                         {
@@ -282,7 +259,9 @@ namespace starcitizen.Buttons
                     }
 
                     if (((JArray)groupObj["options"]).Count > 0)
+                    {
                         result.Add(groupObj);
+                    }
                 }
             }
             catch (Exception ex)
@@ -295,7 +274,6 @@ namespace starcitizen.Buttons
 
         public override void Dispose()
         {
-            resetToken?.Cancel();
             Connection.OnPropertyInspectorDidAppear -= Connection_OnPropertyInspectorDidAppear;
             Connection.OnSendToPlugin -= Connection_OnSendToPlugin;
             Program.KeyBindingsLoaded -= OnKeyBindingsLoaded;

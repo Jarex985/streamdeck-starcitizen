@@ -1,70 +1,56 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using WindowsInput.Native;
 using BarRaider.SdTools;
 using BarRaider.SdTools.Events;
+using BarRaider.SdTools.Wrappers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-// ReSharper disable StringLiteralTypo
-
 namespace starcitizen.Buttons
 {
-
-    [PluginActionId("com.mhwlng.starcitizen.macro")]
-    public class Macro : StarCitizenKeypadBase
+    [PluginActionId("com.mhwlng.starcitizen.holdrepeat")]
+    public class IncreaseDecreaseHold : StarCitizenKeypadBase
     {
         protected class PluginSettings
         {
             public static PluginSettings CreateDefaultSettings()
             {
-                var instance = new PluginSettings
+                return new PluginSettings
                 {
                     Function = string.Empty,
+                    RepeatRate = 100
                 };
-
-                return instance;
             }
 
             [JsonProperty(PropertyName = "function")]
             public string Function { get; set; }
 
-            [FilenameProperty]
-            [JsonProperty(PropertyName = "clickSound")]
-            public string ClickSoundFilename { get; set; }
-
-            [JsonProperty(PropertyName = "delay")]
-            public string Delay { get; set; }
-
+            [JsonProperty(PropertyName = "repeatRate")]
+            public int RepeatRate { get; set; }
         }
 
+        private PluginSettings settings;
+        private CancellationTokenSource repeatToken;
 
-        PluginSettings settings;
-        private CachedSound _clickSound = null;
+        private int currentRepeatRate = 100;
+        private bool isRepeating;
 
-        private int? _delay = null;
-
-
-        public Macro(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public IncreaseDecreaseHold(SDConnection connection, InitialPayload payload)
+            : base(connection, payload)
         {
-            if (payload.Settings == null || payload.Settings.Count == 0)
+            settings = PluginSettings.CreateDefaultSettings();
+
+            if (payload.Settings != null && payload.Settings.Count > 0)
             {
-                //Logger.Instance.LogMessage(TracingLevel.DEBUG, "Repeating Macro Constructor #1");
-
-                settings = PluginSettings.CreateDefaultSettings();
-                Connection.SetSettingsAsync(JObject.FromObject(settings)).Wait();
-
+                Tools.AutoPopulateSettings(settings, payload.Settings);
+                ParseRepeatRate(payload.Settings);
             }
             else
             {
-                //Logger.Instance.LogMessage(TracingLevel.DEBUG, "Repeating Macro Constructor #2");
-
-                settings = payload.Settings.ToObject<PluginSettings>();
-                HandleFileNames();
+                _ = Connection.SetSettingsAsync(JObject.FromObject(settings));
             }
 
             Connection.OnPropertyInspectorDidAppear += Connection_OnPropertyInspectorDidAppear;
@@ -73,7 +59,6 @@ namespace starcitizen.Buttons
 
             UpdatePropertyInspector();
         }
-
 
         public override void KeyPressed(KeyPayload payload)
         {
@@ -85,86 +70,131 @@ namespace starcitizen.Buttons
 
             StreamDeckCommon.ForceStop = false;
 
+            if (payload != null && payload.Settings != null)
+            {
+                ParseRepeatRate(payload.Settings);
+            }
+
             var action = Program.dpReader.GetBinding(settings.Function);
-            if (action != null)
+            if (action == null)
             {
-                Logger.Instance.LogMessage(TracingLevel.INFO, CommandTools.ConvertKeyString(action.Keyboard));
-
-                StreamDeckCommon.SendKeypress(CommandTools.ConvertKeyString(action.Keyboard), _delay ?? 40);
+                return;
             }
 
-            if (_clickSound != null)
+            var keyInfo = CommandTools.ConvertKeyString(action.Keyboard);
+            if (string.IsNullOrWhiteSpace(keyInfo))
             {
-                try
-                {
-                    AudioPlaybackEngine.Instance.PlaySound(_clickSound);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Instance.LogMessage(TracingLevel.FATAL, $"PlaySound: {ex}");
-                }
-
+                return;
             }
 
+            StopRepeater();
+
+            repeatToken = new CancellationTokenSource();
+            isRepeating = true;
+
+            // Switch to "active" state (state 1 image is managed by Stream Deck UI)
+            _ = Connection.SetStateAsync(1);
+
+            _ = Task.Run(() => RepeatWhileHeldAsync(keyInfo, currentRepeatRate, repeatToken.Token));
         }
 
         public override void KeyReleased(KeyPayload payload)
-		{
+        {
+            if (!isRepeating)
+            {
+                return;
+            }
 
+            StopRepeater();
 
+            // Switch back to "idle" state (state 0 image is managed by Stream Deck UI)
+            _ = Connection.SetStateAsync(0);
+        }
+
+        public override void ReceivedSettings(ReceivedSettingsPayload payload)
+        {
+            if (payload.Settings != null)
+            {
+                Tools.AutoPopulateSettings(settings, payload.Settings);
+                ParseRepeatRate(payload.Settings);
+            }
         }
 
         public override void Dispose()
         {
+            repeatToken?.Cancel();
             Connection.OnPropertyInspectorDidAppear -= Connection_OnPropertyInspectorDidAppear;
             Connection.OnSendToPlugin -= Connection_OnSendToPlugin;
             Program.KeyBindingsLoaded -= OnKeyBindingsLoaded;
             base.Dispose();
-
-            //Logger.Instance.LogMessage(TracingLevel.DEBUG, "Destructor called #1");
         }
 
-
-        public override void ReceivedSettings(ReceivedSettingsPayload payload)
+        private async Task RepeatWhileHeldAsync(string keyInfo, int repeatRate, CancellationToken token)
         {
-            //Logger.Instance.LogMessage(TracingLevel.DEBUG, "ReceivedSettings");
+            SendSingleKeypress(keyInfo);
 
-            // New in StreamDeck-Tools v2.0:
-            BarRaider.SdTools.Tools.AutoPopulateSettings(settings, payload.Settings);
-            HandleFileNames();
-        }
-
-        private void HandleFileNames()
-        {
-            _delay = null;
-
-            if (!string.IsNullOrEmpty(settings.Delay))
-            {
-                var ok = int.TryParse(settings.Delay, out var delay);
-                if (ok && (delay > 0))
-                {
-                    _delay = delay;
-                }
-            }
-
-            _clickSound = null;
-
-            if (File.Exists(settings.ClickSoundFilename))
+            while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    _clickSound = new CachedSound(settings.ClickSoundFilename);
+                    await Task.Delay(Math.Max(1, repeatRate), token);
                 }
-                catch (Exception ex)
+                catch (TaskCanceledException)
                 {
-                    Logger.Instance.LogMessage(TracingLevel.FATAL, $"CachedSound: {settings.ClickSoundFilename} {ex}");
-
-                    _clickSound = null;
-                    settings.ClickSoundFilename = null;
+                    break;
                 }
+
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                SendSingleKeypress(keyInfo);
+            }
+        }
+
+        private void SendSingleKeypress(string keyInfo)
+        {
+            try
+            {
+                StreamDeckCommon.SendKeypress(keyInfo, 40);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"Failed to send repeat keypress: {ex}");
+            }
+        }
+
+        private void ParseRepeatRate(JObject settingsObj)
+        {
+            JToken rateToken;
+            if (settingsObj != null &&
+                settingsObj.TryGetValue("repeatRate", out rateToken) &&
+                int.TryParse(rateToken.ToString(), out var parsedRate))
+            {
+                currentRepeatRate = Math.Max(1, parsedRate);
+            }
+            else
+            {
+                currentRepeatRate = Math.Max(1, settings.RepeatRate);
+            }
+        }
+
+        private void StopRepeater()
+        {
+            if (repeatToken != null)
+            {
+                try
+                {
+                    repeatToken.Cancel();
+                }
+                catch { }
+
+                repeatToken.Dispose();
+                repeatToken = null;
             }
 
-            Connection.SetSettingsAsync(JObject.FromObject(settings)).Wait();
+            isRepeating = false;
         }
 
         private void Connection_OnPropertyInspectorDidAppear(object sender, EventArgs e)
@@ -176,7 +206,8 @@ namespace starcitizen.Buttons
         {
             var payload = e.ExtractPayload();
 
-            if (payload?["property_inspector"]?.ToString() == "propertyInspectorConnected")
+            if (payload != null && payload["property_inspector"] != null &&
+                payload["property_inspector"].ToString() == "propertyInspectorConnected")
             {
                 UpdatePropertyInspector();
             }
@@ -210,8 +241,14 @@ namespace starcitizen.Buttons
                 var keyboard = KeyboardLayouts.GetThreadKeyboardLayout();
                 CultureInfo culture;
 
-                try { culture = new CultureInfo(keyboard.KeyboardId); }
-                catch { culture = new CultureInfo("en-US"); }
+                try
+                {
+                    culture = new CultureInfo(keyboard.KeyboardId);
+                }
+                catch
+                {
+                    culture = new CultureInfo("en-US");
+                }
 
                 var actions = Program.dpReader.GetAllActions().Values
                     .Where(x =>
@@ -262,13 +299,15 @@ namespace starcitizen.Buttons
                             ["text"] = $"{action.UILabel}{(string.IsNullOrWhiteSpace(primaryBinding) ? "" : $" [{primaryBinding}]")}",
                             ["searchText"] =
                                 $"{action.UILabel.ToLower()} " +
-                                $"{action.UIDescription?.ToLower() ?? ""} " +
+                                $"{(action.UIDescription ?? "").ToLower()} " +
                                 $"{primaryBinding.ToLower()}"
                         });
                     }
 
                     if (((JArray)groupObj["options"]).Count > 0)
+                    {
                         result.Add(groupObj);
+                    }
                 }
             }
             catch (Exception ex)

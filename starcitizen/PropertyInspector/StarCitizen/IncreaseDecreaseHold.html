@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <title>Star Citizen – Macro Button</title>
+    <title>Star Citizen – Increase / Decrease (Hold)</title>
 
     <link rel="stylesheet" href="../sdpi.css">
     <link rel="stylesheet" href="../jquery.highlight-within-textarea.css">
@@ -25,6 +25,12 @@
         }
         .hidden {
             display: none !important;
+        }
+        .note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -56,42 +62,32 @@
         </select>
     </div>
 
-    <!-- CLICK SOUND -->
-    <div class="sdpi-item" id="dvClickSound">
-        <div class="sdpi-item-label">Sound</div>
-        <div class="sdpi-item-group file">
-            <input class="sdpi-item-value sdProperty sdFile"
-                   type="file"
-                   id="clickSound"
-                   accept=".wav"
-                   oninput="setSettings(); updateClearSoundVisibility();"
-                   onchange="setSettings(); updateClearSoundVisibility();">
-            <label class="sdpi-file-info" id="clickSoundFilename">No file...</label>
-            <label class="sdpi-file-label" for="clickSound">Choose file...</label>
-        </div>
-    </div>
-
-    <!-- CLEAR SOUND BUTTON -->
-    <div class="sdpi-item hidden" id="dvClearSound">
-        <div class="sdpi-item-label"></div>
-        <button class="sdpi-item-value" onclick="clearClickSound()">
-            Clear sound
-        </button>
-    </div>
-
-    <!-- DELAY -->
+    <!-- REPEAT RATE -->
     <div class="sdpi-item">
-        <div class="sdpi-item-label">Delay (ms)</div>
+        <div class="sdpi-item-label">Repeat Rate (ms)</div>
         <input type="number"
                class="sdpi-item-value sdProperty"
-               id="delay"
-               min="0"
+               id="repeatRate"
+               min="1"
                oninput="setSettings()"
                onchange="setSettings()">
+    </div>
+    <div class="sdpi-item">
+        <div class="sdpi-item-label"></div>
+        <div class="sdpi-item-value note">
+            Recommended: 60–80ms (fast), 100ms (default), 120–150ms (precise)
+        </div>
     </div>
 
     <div class="sdpi-item no-results hidden" id="noResults">
         No functions match your search.
+    </div>
+
+    <div class="sdpi-item">
+        <div class="sdpi-item-label"></div>
+        <div class="sdpi-item-value note">
+            Images are managed by Stream Deck (State 0 = idle, State 1 = active). Hold to repeat. Release to stop.
+        </div>
     </div>
 
 </div>
@@ -101,24 +97,21 @@
     let functionsLoaded = false;
     let savedFunctionValue = null;
 
-    /* Preserve function value until dropdown is ready */
+    /* Preserve selected function if payload arrives before functions list */
     const originalLoadConfiguration = loadConfiguration;
     loadConfiguration = function (payload) {
         if (payload && payload.function !== undefined) {
             savedFunctionValue = payload.function;
         }
-
         originalLoadConfiguration(payload);
 
-        if (functionsLoaded && savedFunctionValue !== null) {
+        if (functionsLoaded && savedFunctionValue) {
             const sel = document.getElementById('function');
             if (sel) sel.value = savedFunctionValue;
         }
-
-        updateClearSoundVisibility();
     };
 
-    function populateDropdown(functionsData) {
+    function populateDropdown(functions) {
         const select = document.getElementById('function');
         select.innerHTML = '';
         allOptions = [];
@@ -128,18 +121,23 @@
         empty.textContent = '-- Select a function --';
         select.appendChild(empty);
 
-        functionsData.forEach(group => {
+        functions.forEach(group => {
             const optgroup = document.createElement('optgroup');
             optgroup.label = group.label;
 
-            (group.options || []).forEach(opt => {
+            group.options.forEach(opt => {
                 const option = document.createElement('option');
                 option.value = opt.value;
                 option.textContent = opt.text;
-                option.dataset.search = (opt.searchText || opt.text || '').toLowerCase();
+                option.dataset.search = opt.searchText || opt.text.toLowerCase();
 
                 optgroup.appendChild(option);
-                allOptions.push({ option, optgroup, search: option.dataset.search });
+
+                allOptions.push({
+                    option,
+                    optgroup,
+                    search: option.dataset.search
+                });
             });
 
             select.appendChild(optgroup);
@@ -147,7 +145,7 @@
 
         functionsLoaded = true;
 
-        if (savedFunctionValue !== null) {
+        if (savedFunctionValue) {
             select.value = savedFunctionValue;
         }
 
@@ -160,7 +158,8 @@
         const term = document.getElementById('functionSearch').value.toLowerCase().trim();
         const noResults = document.getElementById('noResults');
         const searchResults = document.getElementById('searchResults');
-        const visibleLabels = new Set();
+
+        let visibleGroups = 0;
 
         allOptions.forEach(o => {
             const visible = !term || o.search.includes(term);
@@ -170,44 +169,31 @@
         document.querySelectorAll('#function optgroup').forEach(group => {
             const hasVisible = Array.from(group.children)
                 .some(o => o.style.display !== 'none');
+
             group.style.display = hasVisible ? '' : 'none';
-            if (hasVisible) visibleLabels.add(group.label);
+            if (hasVisible) visibleGroups++;
         });
 
-        const count = visibleLabels.size;
-        noResults.classList.toggle('hidden', count > 0);
+        noResults.classList.toggle('hidden', visibleGroups > 0);
         searchResults.textContent = term
-            ? `Found ${count} group${count !== 1 ? 's' : ''}`
+            ? `Found ${visibleGroups} group${visibleGroups !== 1 ? 's' : ''}`
             : '';
     }
 
-    function clearClickSound() {
-        const input = document.getElementById('clickSound');
-        const label = document.getElementById('clickSoundFilename');
-
-        if (input) input.value = '';
-        if (label) label.textContent = 'No file...';
-
-        setSettings({ clickSound: '' });
-        updateClearSoundVisibility();
-    }
-
-    function updateClearSoundVisibility() {
-        const input = document.getElementById('clickSound');
-        const clearBtn = document.getElementById('dvClearSound');
-        if (!input || !clearBtn) return;
-        clearBtn.classList.toggle('hidden', !input.value);
-    }
-
+    /* Hook into websocket to receive function list */
     document.addEventListener('websocketCreate', function () {
         const originalOnMessage = websocket.onmessage;
+
         websocket.onmessage = function (evt) {
             const jsonObj = JSON.parse(evt.data);
+
             if (jsonObj.event === 'sendToPropertyInspector'
                 && jsonObj.payload
                 && jsonObj.payload.functionsLoaded) {
+
                 populateDropdown(jsonObj.payload.functions);
             }
+
             if (originalOnMessage) {
                 originalOnMessage.call(this, evt);
             }
@@ -226,8 +212,6 @@
                 document.getElementById('functionSearch').value = '';
                 document.getElementById('searchResults').textContent = '';
             });
-
-        updateClearSoundVisibility();
     });
 </script>
 

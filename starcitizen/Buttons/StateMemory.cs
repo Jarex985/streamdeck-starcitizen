@@ -262,16 +262,16 @@ namespace starcitizen.Buttons
             }
         }
 
-        private void Connection_OnPropertyInspectorDidAppear(object sender, SDEventReceivedEventArgs<PropertyInspectorDidAppear> e)
+        private void Connection_OnPropertyInspectorDidAppear(object sender, EventArgs e)
         {
             UpdatePropertyInspector();
         }
 
-        private void Connection_OnSendToPlugin(object sender, SDEventReceivedEventArgs<SendToPlugin> e)
+        private void Connection_OnSendToPlugin(object sender, EventArgs e)
         {
-            if (e != null && e.Event != null && e.Event.Payload != null &&
-                e.Event.Payload["property_inspector"] != null &&
-                e.Event.Payload["property_inspector"].ToString() == "propertyInspectorConnected")
+            var payload = e.ExtractPayload();
+
+            if (payload?["property_inspector"]?.ToString() == "propertyInspectorConnected")
             {
                 UpdatePropertyInspector();
             }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <title>Star Citizen – Macro Button</title>
+    <title>Star Citizen – Dual Action</title>
 
     <link rel="stylesheet" href="../sdpi.css">
     <link rel="stylesheet" href="../jquery.highlight-within-textarea.css">
@@ -45,19 +45,35 @@
              style="font-size: 11px; color: #999; margin-top: 4px;"></div>
     </div>
 
-    <!-- FUNCTION -->
+    <!-- PRESS FUNCTION -->
     <div class="sdpi-item">
-        <div class="sdpi-item-label">Function</div>
+        <div class="sdpi-item-label">Press action</div>
         <select class="sdpi-item-value select sdProperty"
-                id="function"
+                id="downFunction"
                 oninput="setSettings()"
                 onchange="setSettings()">
-            <option value="">Loading Star Citizen functions...</option>
+            <option value="">Loading Star Citizen functions…</option>
         </select>
     </div>
 
+    <!-- RELEASE FUNCTION -->
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Release action</div>
+        <select class="sdpi-item-value select sdProperty"
+                id="upFunction"
+                oninput="setSettings()"
+                onchange="setSettings()">
+            <option value="">Loading Star Citizen functions…</option>
+        </select>
+        <details style="margin-top: 4px; font-size: 11px; color: #999;">
+            <summary>How it works</summary>
+            Press action is held down until you release the key. When released,
+            the press action is released and the optional release action is tapped.
+        </details>
+    </div>
+
     <!-- CLICK SOUND -->
-    <div class="sdpi-item" id="dvClickSound">
+    <div class="sdpi-item">
         <div class="sdpi-item-label">Sound</div>
         <div class="sdpi-item-group file">
             <input class="sdpi-item-value sdProperty sdFile"
@@ -66,8 +82,8 @@
                    accept=".wav"
                    oninput="setSettings(); updateClearSoundVisibility();"
                    onchange="setSettings(); updateClearSoundVisibility();">
-            <label class="sdpi-file-info" id="clickSoundFilename">No file...</label>
-            <label class="sdpi-file-label" for="clickSound">Choose file...</label>
+            <label class="sdpi-file-info" id="clickSoundFilename">No file…</label>
+            <label class="sdpi-file-label" for="clickSound">Choose file…</label>
         </div>
     </div>
 
@@ -79,17 +95,6 @@
         </button>
     </div>
 
-    <!-- DELAY -->
-    <div class="sdpi-item">
-        <div class="sdpi-item-label">Delay (ms)</div>
-        <input type="number"
-               class="sdpi-item-value sdProperty"
-               id="delay"
-               min="0"
-               oninput="setSettings()"
-               onchange="setSettings()">
-    </div>
-
     <div class="sdpi-item no-results hidden" id="noResults">
         No functions match your search.
     </div>
@@ -97,61 +102,89 @@
 </div>
 
 <script>
-    let allOptions = [];
+    let downOptions = [];
+    let upOptions = [];
+    let optionGroups = [];
     let functionsLoaded = false;
-    let savedFunctionValue = null;
+    let savedDownValue = null;
+    let savedUpValue = null;
 
-    /* Preserve function value until dropdown is ready */
+    /* SAFE loadConfiguration — preserve payload */
     const originalLoadConfiguration = loadConfiguration;
     loadConfiguration = function (payload) {
-        if (payload && payload.function !== undefined) {
-            savedFunctionValue = payload.function;
+
+        if (payload) {
+            if (payload.downFunction !== undefined) {
+                savedDownValue = payload.downFunction;
+            }
+            if (payload.upFunction !== undefined) {
+                savedUpValue = payload.upFunction;
+            }
         }
 
         originalLoadConfiguration(payload);
 
-        if (functionsLoaded && savedFunctionValue !== null) {
-            const sel = document.getElementById('function');
-            if (sel) sel.value = savedFunctionValue;
+        if (functionsLoaded) {
+            const downSel = document.getElementById('downFunction');
+            const upSel = document.getElementById('upFunction');
+            if (downSel && savedDownValue) downSel.value = savedDownValue;
+            if (upSel && savedUpValue) upSel.value = savedUpValue;
         }
 
         updateClearSoundVisibility();
     };
 
-    function populateDropdown(functionsData) {
-        const select = document.getElementById('function');
-        select.innerHTML = '';
-        allOptions = [];
+    function populateDropdown(functions) {
+        const downSel = document.getElementById('downFunction');
+        const upSel = document.getElementById('upFunction');
+        downSel.innerHTML = '';
+        upSel.innerHTML = '';
+        downOptions = [];
+        upOptions = [];
+        optionGroups = [];
 
         const empty = document.createElement('option');
         empty.value = '';
         empty.textContent = '-- Select a function --';
-        select.appendChild(empty);
+        downSel.appendChild(empty.cloneNode(true));
+        upSel.appendChild(empty.cloneNode(true));
 
-        functionsData.forEach(group => {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = group.label;
+        functions.forEach(group => {
+            const downGroup = document.createElement('optgroup');
+            const upGroup = document.createElement('optgroup');
+            downGroup.label = upGroup.label = group.label;
 
-            (group.options || []).forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt.value;
-                option.textContent = opt.text;
-                option.dataset.search = (opt.searchText || opt.text || '').toLowerCase();
+            group.options.forEach(opt => {
+                const downOption = document.createElement('option');
+                downOption.value = opt.value;
+                downOption.textContent = opt.text;
+                downOption.dataset.search = opt.searchText || opt.text.toLowerCase();
 
-                optgroup.appendChild(option);
-                allOptions.push({ option, optgroup, search: option.dataset.search });
+                const upOption = downOption.cloneNode(true);
+
+                downGroup.appendChild(downOption);
+                upGroup.appendChild(upOption);
+
+                downOptions.push({
+                    option: downOption,
+                    search: downOption.dataset.search
+                });
+
+                upOptions.push({
+                    option: upOption,
+                    search: upOption.dataset.search
+                });
             });
 
-            select.appendChild(optgroup);
+            optionGroups.push({ downGroup, upGroup });
+            downSel.appendChild(downGroup);
+            upSel.appendChild(upGroup);
         });
 
         functionsLoaded = true;
 
-        if (savedFunctionValue !== null) {
-            select.value = savedFunctionValue;
-        }
-
-        filterOptions();
+        if (savedDownValue) downSel.value = savedDownValue;
+        if (savedUpValue) upSel.value = savedUpValue;
     }
 
     function filterOptions() {
@@ -160,33 +193,41 @@
         const term = document.getElementById('functionSearch').value.toLowerCase().trim();
         const noResults = document.getElementById('noResults');
         const searchResults = document.getElementById('searchResults');
-        const visibleLabels = new Set();
 
-        allOptions.forEach(o => {
+        downOptions.forEach((o, idx) => {
             const visible = !term || o.search.includes(term);
             o.option.style.display = visible ? '' : 'none';
+
+            const upOpt = upOptions[idx];
+            if (upOpt) {
+                upOpt.option.style.display = visible ? '' : 'none';
+            }
         });
 
-        document.querySelectorAll('#function optgroup').forEach(group => {
-            const hasVisible = Array.from(group.children)
+        let visibleGroups = 0;
+        optionGroups.forEach(group => {
+            const hasVisible = Array.from(group.downGroup.children)
                 .some(o => o.style.display !== 'none');
-            group.style.display = hasVisible ? '' : 'none';
-            if (hasVisible) visibleLabels.add(group.label);
+
+            group.downGroup.style.display = hasVisible ? '' : 'none';
+            group.upGroup.style.display = hasVisible ? '' : 'none';
+
+            if (hasVisible) visibleGroups++;
         });
 
-        const count = visibleLabels.size;
-        noResults.classList.toggle('hidden', count > 0);
+        noResults.classList.toggle('hidden', visibleGroups > 0);
         searchResults.textContent = term
-            ? `Found ${count} group${count !== 1 ? 's' : ''}`
+            ? `Found ${visibleGroups} group${visibleGroups !== 1 ? 's' : ''}`
             : '';
     }
 
+    /* CLEAR SOUND HANDLER */
     function clearClickSound() {
         const input = document.getElementById('clickSound');
         const label = document.getElementById('clickSoundFilename');
 
         if (input) input.value = '';
-        if (label) label.textContent = 'No file...';
+        if (label) label.textContent = 'No file…';
 
         setSettings({ clickSound: '' });
         updateClearSoundVisibility();
@@ -195,19 +236,27 @@
     function updateClearSoundVisibility() {
         const input = document.getElementById('clickSound');
         const clearBtn = document.getElementById('dvClearSound');
+
         if (!input || !clearBtn) return;
+
         clearBtn.classList.toggle('hidden', !input.value);
     }
 
+    /* CORRECT BarRaider hook — SAME AS OTHER BUTTONS */
     document.addEventListener('websocketCreate', function () {
+
         const originalOnMessage = websocket.onmessage;
+
         websocket.onmessage = function (evt) {
             const jsonObj = JSON.parse(evt.data);
+
             if (jsonObj.event === 'sendToPropertyInspector'
                 && jsonObj.payload
                 && jsonObj.payload.functionsLoaded) {
+
                 populateDropdown(jsonObj.payload.functions);
             }
+
             if (originalOnMessage) {
                 originalOnMessage.call(this, evt);
             }
@@ -215,17 +264,20 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+
         document.getElementById('functionSearch')
             .addEventListener('input', function () {
                 clearTimeout(this.searchTimeout);
                 this.searchTimeout = setTimeout(filterOptions, 150);
             });
 
-        document.getElementById('function')
-            .addEventListener('change', function () {
-                document.getElementById('functionSearch').value = '';
-                document.getElementById('searchResults').textContent = '';
-            });
+        ['downFunction', 'upFunction'].forEach(id => {
+            document.getElementById(id)
+                .addEventListener('change', function () {
+                    document.getElementById('functionSearch').value = '';
+                    document.getElementById('searchResults').textContent = '';
+                });
+        });
 
         updateClearSoundVisibility();
     });

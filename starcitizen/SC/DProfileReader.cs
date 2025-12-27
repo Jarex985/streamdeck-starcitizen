@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using BarRaider.SdTools;
-using p4ktest;
-using p4ktest.SC;
 using starcitizen;
-using WindowsInput;
-using Action = System.Action;
+using TheUser = p4ktest.SC.TheUser;
 
 namespace SCJMapper_V2.SC
 {
@@ -409,28 +402,6 @@ namespace SCJMapper_V2.SC
                         }
                     }
 
-                    /*
-                    //Modifiers.Instance.Clear();
-                    IEnumerable<XElement> modifiers = from x in el.Elements()
-                                                      where (x.Name == "modifiers")
-                                                      select x;
-                    foreach (XElement modifier in modifiers)
-                    {
-                        //ValidContent &= Modifiers.Instance.FromXML(modifier, true);
-                    }
-
-                    // only in defaultProfile.xml
-                    //OptionTree.InitOptionReader( );
-                    
-                    IEnumerable<XElement> optiontrees = from x in el.Elements( )
-                                                      where ( x.Name == "optiontree" )
-                                                      select x;
-
-                    foreach ( XElement optiontree in optiontrees ) {
-                     // ValidContent &= OptionTree.fromProfileXML( optiontree );
-                    }
-                    */
-
                     IEnumerable<XElement> options = el.Elements().Where(x => x.Name == "options");
 
                     foreach (XElement option in options)
@@ -473,8 +444,13 @@ namespace SCJMapper_V2.SC
             return null;
         }
 
-        public void CreateCsv()
+        public void CreateCsv(bool enableCsvExport)
         {
+            if (!enableCsvExport)
+            {
+                return;
+            }
+
             try
             {
                 using (StreamWriter outputFile =
@@ -623,148 +599,6 @@ namespace SCJMapper_V2.SC
         }
 
 
-
-        public void CreateDialHtml(string dialtemplate)
-        {
-            try
-            {
-                var keyboard = KeyboardLayouts.GetThreadKeyboardLayout();
-
-                CultureInfo culture;
-
-                try
-                {
-                    culture = new CultureInfo(keyboard.KeyboardId);
-                }
-                catch
-                {
-                    culture = new CultureInfo("en-US");
-                }
-
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"Keyboard Detected, language : {keyboard.LanguageId:X} keyboard : {keyboard.KeyboardId:X} culture : {culture.Name}");
-
-                var dropdownHtml = new StringBuilder();
-
-                var mapsList =
-                    actions
-                        .Where(x => !string.IsNullOrWhiteSpace(x.Value.Keyboard))
-                        .OrderBy(x => x.Value.MapUILabel)
-                        .GroupBy(x => x.Value.MapUILabel)
-                        .Select(x => x.Key);
-
-
-                foreach (var map in mapsList)
-                {
-                    var options = actions
-                        .Where(x => x.Value.MapUILabel == map && !string.IsNullOrWhiteSpace(x.Value.Keyboard))
-                        .OrderBy(x => x.Value.MapUICategory)
-                        .ThenBy(x => x.Value.MapUILabel)
-                        .ThenBy(x => x.Value.UILabel);
-
-                    if (options.Any())
-                    {
-                        var htmlline = $"<optgroup label=\"{map}\">";
-
-                        dropdownHtml.AppendLine(htmlline);
-
-                        foreach (var action in options)
-                        {
-                            var keyString = CommandTools.ConvertKeyStringToLocale(action.Value.Keyboard, culture.Name);
-
-                            var key = keyString.Replace("Dik", "").Replace("}{", "+").Replace("}", "").Replace("{", "");
-
-                            htmlline = $"   <option value=\"{action.Value.Name}\">{action.Value.UILabel} [{key}]</option>";
-
-                            dropdownHtml.AppendLine(htmlline);
-                        }
-
-                        htmlline = $"</optgroup>";
-
-                        dropdownHtml.AppendLine(htmlline);
-                    }
-
-                }
-
-                File.WriteAllText(Path.Combine(@"PropertyInspector\StarCitizen", "Dial.html"),
-                    dialtemplate.Replace("[DROPDOWN]", dropdownHtml.ToString()));
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.LogMessage(TracingLevel.ERROR, $"CreateDialHtml {ex}");
-            }
-
-        }
-
-        public void CreateMacroHtml(string macrotemplate)
-        {
-            try
-            {
-                var keyboard = KeyboardLayouts.GetThreadKeyboardLayout();
-
-                CultureInfo culture;
-
-                try
-                {
-                    culture = new CultureInfo(keyboard.KeyboardId);
-                }
-                catch
-                {
-                    culture = new CultureInfo("en-US");
-                }
-
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"Keyboard Detected, language : {keyboard.LanguageId:X} keyboard : {keyboard.KeyboardId:X} culture : {culture.Name}");
-
-                var dropdownHtml = new StringBuilder();
-
-                var mapsList =
-                    actions
-                        .Where(x => !string.IsNullOrWhiteSpace(x.Value.Keyboard))
-                        .OrderBy(x => x.Value.MapUILabel)
-                        .GroupBy(x => x.Value.MapUILabel)
-                        .Select(x => x.Key);
-
-
-                foreach (var map in mapsList)
-                {
-                    var options = actions
-                        .Where(x => x.Value.MapUILabel == map && !string.IsNullOrWhiteSpace(x.Value.Keyboard))
-                        .OrderBy(x => x.Value.MapUICategory)
-                        .ThenBy(x => x.Value.MapUILabel)
-                        .ThenBy(x => x.Value.UILabel);
-
-                    if (options.Any())
-                    {
-                        var htmlline = $"<optgroup label=\"{map}\">";
-
-                        dropdownHtml.AppendLine(htmlline);
-
-                        foreach (var action in options)
-                        {
-                            var keyString = CommandTools.ConvertKeyStringToLocale(action.Value.Keyboard, culture.Name);
-
-                            var key = keyString.Replace("Dik", "").Replace("}{", "+").Replace("}", "").Replace("{", "");
-
-                            htmlline = $"   <option value=\"{action.Value.Name}\">{action.Value.UILabel} [{key}]</option>";
-
-                            dropdownHtml.AppendLine(htmlline);
-                        }
-
-                        htmlline = $"</optgroup>";
-
-                        dropdownHtml.AppendLine(htmlline);
-                    }
-
-                }
-
-                File.WriteAllText(Path.Combine(@"PropertyInspector\StarCitizen", "Macro.html"),
-                    macrotemplate.Replace("[DROPDOWN]", dropdownHtml.ToString()));
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.LogMessage(TracingLevel.ERROR, $"CreateMacroHtml {ex}");
-            }
-
-        }
 
     }
 }

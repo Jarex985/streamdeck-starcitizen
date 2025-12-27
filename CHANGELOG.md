@@ -5,6 +5,23 @@
 
 ## Changelog
 
+## v1.1.8
+
+### New Features
+- **Increase / Decrease (Hold) Button:**
+  - Fires a selected Star Citizen function immediately on press, then repeats it at a configurable rate while held.
+  - Includes Idle/Active images that snap back to idle the moment you release.
+  - Optional start/stop sounds for tactile audio feedback.
+  - Property Inspector exposes function selection, repeat rate (ms), idle/active image pickers, and start/stop sound pickers.
+
+## v1.1.7
+
+### New Features
+- **Dual Action Button (Hold/Release):**
+  - Sends one binding on press (held while the button is down) and a second on release.
+  - Uses a two-state icon so the key visually shifts while held.
+  - Includes optional click sound on press.
+
 ## v1.1.6
 
 ### New
@@ -79,8 +96,6 @@
 - `Static.html` / `statictemplate.html`: Implemented dynamic dropdown population via JSON WebSocket messages
 - `SCPath.cs`: Added `FindInstallationFromRSILauncher()` method and improved `IsValidStarCitizenInstallation()` to support multiple directory structures
 - `DProfileReader.cs`: Simplified `CreateStaticHtml()` to just copy template (dropdown now populated dynamically)
-
-
 
 
 
