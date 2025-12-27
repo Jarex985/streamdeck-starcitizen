@@ -22,7 +22,7 @@ namespace starcitizen
                 return string.Empty;
             }
 
-            var keys = keyboard.Split(new[] { "+" }, StringSplitOptions.RemoveEmptyEntries);
+            var keys = keyboard.Split('+', StringSplitOptions.RemoveEmptyEntries);
 
             if (keys.Length == 0)
             {
@@ -47,7 +47,7 @@ namespace starcitizen
                 return string.Empty;
             }
 
-            var keys = keyboard.Split(new[] { "+" }, StringSplitOptions.RemoveEmptyEntries);
+            var keys = keyboard.Split('+', StringSplitOptions.RemoveEmptyEntries);
 
             if (keys.Length == 0)
             {
