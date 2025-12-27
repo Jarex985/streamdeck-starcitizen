@@ -183,7 +183,6 @@
     <Compile Include="Buttons\StateMemory.cs" />
     <Compile Include="Buttons\StarCitizenDialBase.cs" />
     <Compile Include="Buttons\Dial.cs" />
-    <Compile Include="Buttons\ActionDelay.cs" />
     <Compile Include="Buttons\IncreaseDecreaseHold.cs" />
     <Compile Include="Buttons\Momentary.cs" />
     <Compile Include="Buttons\StreamDeckCommon.cs" />
@@ -249,11 +248,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="check_updates.ps1" />
+    <Content Include="Images\Actiondelay0.png" />
+    <Content Include="Images\Actiondelay1.png" />
+    <Content Include="Images\ActionKey.png" />
     <Content Include="Images\categoryIcon.png" />
     <Content Include="Images\Cosmetic.png" />
     <Content Include="Images\Default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\Dualaction0.png" />
+    <Content Include="Images\Dualaction1.png" />
     <Content Include="Images\icon%402x.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -271,9 +275,10 @@
     <Content Include="Images\pluginIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\Repeataction0.png" />
+    <Content Include="Images\Repeataction1.png" />
     <Content Include="Images\Statememory0.png" />
     <Content Include="Images\Statememory1.png" />
-    <Content Include="Images\Static.png" />
     <Content Include="PropertyInspector\caret.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
