@@ -199,7 +199,7 @@ The plugin uses all the active keyboard bindings from `defaultProfile.xml` and t
 
 `C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\USER\Client\0\Profiles\default\actionmaps.xml`
 
-The `PropertyInspector\StarCitizen\Static.html` and `PropertyInspector\StarCitizen\Macro.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
+The `PropertyInspector\StarCitizen\Static.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
 that didn't have any corresponding keyboard bindings in `defaultProfile.xml`.
 
 If nothing happens, when pressing streamdeck buttons: you could try to start streamdeck.exe as administrator.

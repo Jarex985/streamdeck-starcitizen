@@ -16,21 +16,6 @@
       "PropertyInspectorPath": "PropertyInspector/StarCitizen/Static.html"
     },
     {
-      "Icon": "Images/Default",
-      "Name": "Multi-Action Button",
-      "States": [
-        {
-          "Image": "Images/Default",
-          "TitleAlignment": "bottom",
-          "FontSize": "8"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Star Citizen Multi-Action Button",
-      "UUID": "com.mhwlng.starcitizen.macro",
-      "PropertyInspectorPath": "PropertyInspector/StarCitizen/Macro.html"
-    },
-    {
       "Icon": "Images/pluginIcon",
       "Name": "Dial Button",
       "Controllers": ["Encoder"],

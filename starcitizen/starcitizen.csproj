@@ -189,7 +189,6 @@
     <Compile Include="Buttons\StreamDeckCommon.cs" />
     <Compile Include="Buttons\StreamDeckEventArgsExtensions.cs" />
     <Compile Include="Buttons\StarCitizenKeypadBase.cs" />
-    <Compile Include="Buttons\Macro.cs" />
     <Compile Include="Buttons\Static.cs" />
     <Compile Include="CommandTools.cs" />
     <Compile Include="CryXMLlib\Conversions.cs" />
@@ -309,9 +308,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="PropertyInspector\StarCitizen\Actiondelay.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="PropertyInspector\StarCitizen\Macro.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="PropertyInspector\StarCitizen\Dial.html">
