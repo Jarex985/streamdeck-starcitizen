@@ -68,6 +68,8 @@ A dedicated toggle-style action designed for Star Citizen systems with **no reli
 ---
 
 ### Momentary
+<img width="100" height="100" alt="Momentary1" src="https://github.com/user-attachments/assets/be64760f-0e84-4a54-87d7-75cc7c33c1d1" />
+<img width="100" height="100" alt="Momentary0" src="https://github.com/user-attachments/assets/b4a27ad1-23d9-4dd6-8d83-43d4f323de38" />
 
 A one-shot action with temporary visual feedback.
 
@@ -86,6 +88,8 @@ A one-shot action with temporary visual feedback.
 ---
 
 ### Dual Action
+<img width="100" height="100" alt="Dualaction1" src="https://github.com/user-attachments/assets/41fb4c7d-7b87-445d-baf2-3ab460528db0" />
+<img width="100" height="100" alt="Dualaction0" src="https://github.com/user-attachments/assets/971f4f90-dea1-42bb-82a4-774335997d02" />
 
 Two-stage behavior tied to press and release.
 
@@ -104,6 +108,8 @@ Two-stage behavior tied to press and release.
 ---
 
 ### Action Delay
+<img width="100" height="100" alt="ActionDelay1" src="https://github.com/user-attachments/assets/17bf3045-8aa5-4034-a2f4-2fb993e1c3f5" />
+<img width="100" height="100" alt="ActionDelay0" src="https://github.com/user-attachments/assets/fcf0cc43-9754-4d52-a64f-d2b45aef9c57" />
 
 A timed action with a cancel window.
 
@@ -122,7 +128,9 @@ A timed action with a cancel window.
 
 ---
 
-### Increase/Decrease (Hold Repeat)
+### RepeatAction
+<img width="100" height="100" alt="Repeataction1" src="https://github.com/user-attachments/assets/e39a4a3a-6cce-4ebf-adcc-b2acac57d9a5" />
+<img width="100" height="100" alt="Repeataction0" src="https://github.com/user-attachments/assets/691bb7d0-4104-4cfe-bd02-ced60fa86cef" />
 
 Press-and-hold repeat behavior.
 
@@ -140,6 +148,7 @@ Press-and-hold repeat behavior.
 ---
 
 ### Cosmetic
+<img width="100" height="100" alt="Cosmetic" src="https://github.com/user-attachments/assets/6891af8c-352b-4c2c-81d4-335df945e9b8" />
 
 Visual-only tile (no keybind, no action).
 
