@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,11 +14,6 @@ using SCJMapper_V2.SC;
 
 namespace starcitizen
 {
-    public class KeyBindingFileEvent : EventArgs
-    {
-
-    }
-
     public class KeyBindingWatcher : FileSystemWatcher
     {
         public event EventHandler KeyBindingUpdated;
@@ -84,9 +80,7 @@ namespace starcitizen
 
         public static string profile;
 
-        public static string dialtemplate;
-
-        public static string macrotemplate;
+        private static bool enableCsvExport;
 
         // Event to notify buttons when key bindings are loaded
         public static event EventHandler KeyBindingsLoaded;
@@ -126,11 +120,7 @@ namespace starcitizen
 
                 dpReader.Actions();
 
-                dpReader.CreateDialHtml(dialtemplate);
-
-                dpReader.CreateMacroHtml(macrotemplate);
-
-                dpReader.CreateCsv();
+                dpReader.CreateCsv(enableCsvExport);
 
                 string profilePath = SCPath.SCClientProfilePath;
                 if (!string.IsNullOrEmpty(profilePath) && Directory.Exists(profilePath))
@@ -162,11 +152,9 @@ namespace starcitizen
 
             try
             {
+                LoadConfiguration();
+
                 SCFiles.Instance.UpdatePack(); // update game files
-
-                dialtemplate = File.ReadAllText("dialtemplate.html");
-
-                macrotemplate = File.ReadAllText("macrotemplate.html");
 
                 profile = SCDefaultProfile.DefaultProfile();
 
@@ -193,6 +181,30 @@ namespace starcitizen
             SDWrapper.Run(args);
 
 
+        }
+
+        private static void LoadConfiguration()
+        {
+            try
+            {
+                var csvSetting = ConfigurationManager.AppSettings["EnableCsvExport"];
+
+                if (bool.TryParse(csvSetting, out bool parsedSetting))
+                {
+                    enableCsvExport = parsedSetting;
+                }
+                else
+                {
+                    enableCsvExport = false;
+                }
+
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"CSV export setting: {(enableCsvExport ? "enabled" : "disabled")}");
+            }
+            catch (Exception ex)
+            {
+                enableCsvExport = false;
+                Logger.Instance.LogMessage(TracingLevel.WARN, $"Could not read CSV export setting, defaulting to disabled. {ex.Message}");
+            }
         }
     }
 }

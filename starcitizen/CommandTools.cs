@@ -1,6 +1,7 @@
 ﻿using BarRaider.SdTools;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using WindowsInput.Native;
 
@@ -15,20 +16,46 @@ namespace starcitizen
 
         public static string ConvertKeyString(string keyboard)
         {
-            var keys = keyboard.Split('+');
-            keyboard = "";
-            foreach (var key in keys)
+            if (string.IsNullOrWhiteSpace(keyboard))
             {
-                keyboard += "{" + FromSCKeyboardCmd(key) + "}";
+                Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyString called with an empty keyboard binding. Skipping send.");
+                return string.Empty;
             }
 
-            return keyboard;
+            var keys = keyboard.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (keys.Length == 0)
+            {
+                Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyString received no usable key tokens after splitting. Skipping send.");
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder();
+            foreach (var key in keys)
+            {
+                builder.Append('{').Append(FromSCKeyboardCmd(key)).Append('}');
+            }
+
+            return builder.ToString();
         }
         
         public static string ConvertKeyStringToLocale(string keyboard, string language)
         {
-            var keys = keyboard.Split('+');
-            keyboard = "";
+            if (string.IsNullOrWhiteSpace(keyboard))
+            {
+                Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyStringToLocale called with an empty keyboard binding. Skipping send.");
+                return string.Empty;
+            }
+
+            var keys = keyboard.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (keys.Length == 0)
+            {
+                Logger.Instance.LogMessage(TracingLevel.WARN, "ConvertKeyStringToLocale received no usable key tokens after splitting. Skipping send.");
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder();
             foreach (var key in keys)
             {
                 var dikKey = FromSCKeyboardCmd(key);
@@ -637,10 +664,10 @@ namespace starcitizen
                         break;
                 }
 
-                keyboard += "{" + dikKeyOut + "}";
+                builder.Append('{').Append(dikKeyOut).Append('}');
             }
 
-            return keyboard;
+            return builder.ToString();
         }
 
         private static DirectInputKeyCode FromSCKeyboardCmd(string scKey)

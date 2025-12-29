@@ -19,7 +19,7 @@ namespace starcitizen.Buttons
 {
 
     [PluginActionId("com.mhwlng.starcitizen.static")]
-    public class Static : StarCitizenKeypadBase
+    public class ActionKey : StarCitizenKeypadBase
     {
         protected class PluginSettings
         {
@@ -47,7 +47,7 @@ namespace starcitizen.Buttons
         private CachedSound _clickSound = null;
 
 
-        public Static(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public ActionKey(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
@@ -144,20 +144,22 @@ namespace starcitizen.Buttons
             HandleFileNames();
         }
 
-        private void Connection_OnPropertyInspectorDidAppear(object sender, SDEventReceivedEventArgs<PropertyInspectorDidAppear> e)
+        private void Connection_OnPropertyInspectorDidAppear(object sender, EventArgs e)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Property Inspector appeared, sending functions data");
             UpdatePropertyInspector();
         }
 
-        private void Connection_OnSendToPlugin(object sender, SDEventReceivedEventArgs<SendToPlugin> e)
+        private void Connection_OnSendToPlugin(object sender, EventArgs e)
         {
             // Check if the Property Inspector is sending a log message
             try
             {
-                if (e?.Event?.Payload != null && e.Event.Payload.ContainsKey("jslog"))
+                var payload = e.ExtractPayload();
+
+                if (payload != null && payload.ContainsKey("jslog"))
                 {
-                    var logMessage = e.Event.Payload["jslog"]?.ToString();
+                    var logMessage = payload["jslog"]?.ToString();
                     Logger.Instance.LogMessage(TracingLevel.INFO, $"[JS-PI] {logMessage}");
                     return; // Handled, exit early
                 }
@@ -171,9 +173,11 @@ namespace starcitizen.Buttons
             string propertyInspectorStatus = null;
             try
             {
-                if (e?.Event?.Payload != null && e.Event.Payload.ContainsKey("property_inspector"))
+                var payload = e.ExtractPayload();
+
+                if (payload != null && payload.ContainsKey("property_inspector"))
                 {
-                    propertyInspectorStatus = e.Event.Payload["property_inspector"]?.ToString();
+                    propertyInspectorStatus = payload["property_inspector"]?.ToString();
                 }
             }
             catch

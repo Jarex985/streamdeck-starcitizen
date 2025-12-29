@@ -124,6 +124,9 @@ namespace SCJMapper_V2.SC
                 //  }
                 if (string.IsNullOrEmpty(retVal))
                     retVal = defaultS; // final fallback to default
+
+                retVal = RemoveControlCharacters(retVal);
+
                 return retVal.Replace("Â", "").Trim();
             }
             catch
@@ -132,6 +135,25 @@ namespace SCJMapper_V2.SC
             }
 
             return defaultS;
+        }
+
+        private static string RemoveControlCharacters(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            var builder = new StringBuilder(text.Length);
+            foreach (var ch in text)
+            {
+                if (!char.IsControl(ch) || ch == '\r' || ch == '\n' || ch == '\t')
+                {
+                    builder.Append(ch);
+                }
+            }
+
+            return builder.ToString();
         }
 
 

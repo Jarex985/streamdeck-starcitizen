@@ -5,19 +5,174 @@
 > 🔗 **This is an updated fork of [mhwlng/streamdeck-starcitizen](https://github.com/mhwlng/streamdeck-starcitizen)**  
 > The original project is archived. This fork adds improved auto-detection, search functionality, and bug fixes.
 
-![Elgato Stream Deck button plugin for Star Citizen](https://i.imgur.com/FSHsXRG.png)
-
 ## What's New in This Fork
 
 - **Automatic RSI Launcher Detection** - (Hopefully) No more manual path configuration! The plugin reads your RSI Launcher settings automatically.
-
 - **Search Functionality** - Quickly find keybindings with the new search box in the Property Inspector.
-
 - **Simplified Configuration** - Only need to set `SCBasePath` if auto-detection fails (instead of SCData_p4k and SCClientProfilePath).
-
 - **Bug Fixes & Improvements** - Various fixes to improve stability and usability.
 
-See [CHANGELOG.md](CHANGELOG.md) for full details.
+## V2 Full Release
+
+V2 is a full release with a **major code refactor** focused on stability, maintainability, and a cleaner Property Inspector experience.
+
+When the plugin starts, it reads Star Citizen bindings and text resources so it can populate the function list. Depending on your install and drive speed, the first load can take a few seconds.
+
+The plugin logs useful startup and detection details in:
+
+`%appdata%\Elgato\StreamDeck\Plugins\com.mhwlng.starcitizen.sdPlugin\pluginlog.log`
+
+---
+
+## What’s improved in V2
+
+**This release includes a major internal refactor:**
+
+1. **Stability improvements** - Better behavior under fast tapping / repeated presses
+2. **Cleaner structure** - Easier to maintain and evolve long-term
+3. **Improved Property Inspector experience** - Faster function selection and more consistent UI
+4. **More consistent action behavior** - Actions now follow clearer rules across buttons
+
+---
+
+## Buttons (Actions) — What they do
+
+### ActionKey
+<img width="100" height="100" alt="ActionKey" src="https://github.com/user-attachments/assets/fafae77c-add4-4a1c-bb84-808b9ef9f7ef" />
+
+Sends the selected Star Citizen function (keyboard bind).
+
+**Use cases:**
+
+1. Standard “press to trigger” commands
+2. Any binding you want to behave like a normal key press
+
+---
+
+### State Memory (Soft Sync Toggle)
+<img width="100" height="100" alt="Statememory1" src="https://github.com/user-attachments/assets/13b05164-f0cb-4273-bab5-ed49c1e4f3b7" />
+<img width="100" height="100" alt="Statememory0" src="https://github.com/user-attachments/assets/82f290bc-6eac-4cf1-a1df-3c9022b01f12" />
+
+A dedicated toggle-style action designed for Star Citizen systems with **no reliable state feedback**.
+
+**Behavior:**
+
+1. **Short press** - Sends the selected Star Citizen keybind and flips the internal ON/OFF state
+2. **Long press** - Flips the internal ON/OFF state only (manual “resync” without sending a key)
+
+**Use cases:**
+
+1. Lights, landing gear, VTOL, doors, power toggles
+2. Situations where the real in-game state can change outside Stream Deck and you want a quick manual resync
+
+---
+
+### Momentary
+<img width="100" height="100" alt="Momentary1" src="https://github.com/user-attachments/assets/be64760f-0e84-4a54-87d7-75cc7c33c1d1" />
+<img width="100" height="100" alt="Momentary0" src="https://github.com/user-attachments/assets/b4a27ad1-23d9-4dd6-8d83-43d4f323de38" />
+
+A one-shot action with temporary visual feedback.
+
+**Behavior:**
+
+1. Press sends the selected function once
+2. Switches to an active image state briefly
+3. Returns to idle image state after the configured delay
+
+**Use cases:**
+
+1. Engine start / system triggers
+2. Confirmation actions
+3. Immersion feedback without a persistent toggle
+
+---
+
+### Dual Action
+<img width="100" height="100" alt="Dualaction1" src="https://github.com/user-attachments/assets/41fb4c7d-7b87-445d-baf2-3ab460528db0" />
+<img width="100" height="100" alt="Dualaction0" src="https://github.com/user-attachments/assets/971f4f90-dea1-42bb-82a4-774335997d02" />
+
+Two-stage behavior tied to press and release.
+
+**Behavior:**
+
+1. **Press (key down)** triggers Action A
+2. **Release (key up)** triggers Action B
+3. Optional 2-state image behavior (pressed vs released)
+
+**Use cases:**
+
+1. Hold-to-engage / release-to-disengage patterns
+2. Temporary modes
+3. Spool / charge style workflows (depending on your binds)
+
+---
+
+### Action Delay
+<img width="100" height="100" alt="ActionDelay1" src="https://github.com/user-attachments/assets/17bf3045-8aa5-4034-a2f4-2fb993e1c3f5" />
+<img width="100" height="100" alt="ActionDelay0" src="https://github.com/user-attachments/assets/fcf0cc43-9754-4d52-a64f-d2b45aef9c57" />
+
+A timed action with a cancel window.
+
+**Behavior:**
+
+1. Tap starts a timer and shows an “armed/pending” state
+2. When the delay ends, the selected function triggers and the button shows an “executed” state briefly
+3. Then it returns to idle
+4. Tap again while pending cancels the timer
+
+**Use cases:**
+
+1. Safer actions (gives you time to cancel before it fires)
+2. Timed sequences where you want a clear “armed → executed → idle” flow
+3. Any workflow where a delayed trigger feels better than an instant press
+
+---
+
+### RepeatAction
+<img width="100" height="100" alt="Repeataction1" src="https://github.com/user-attachments/assets/e39a4a3a-6cce-4ebf-adcc-b2acac57d9a5" />
+<img width="100" height="100" alt="Repeataction0" src="https://github.com/user-attachments/assets/691bb7d0-4104-4cfe-bd02-ced60fa86cef" />
+
+Press-and-hold repeat behavior.
+
+**Behavior:**
+
+1. Press triggers immediately
+2. While held, repeats the selected function at the configured interval
+3. Stops instantly on release and returns to idle image
+
+**Use cases:**
+
+1. Power / cooling / shield management adjustments
+2. Increment/decrement controls where holding feels better than tapping repeatedly
+
+---
+
+### Cosmetic
+<img width="100" height="100" alt="Cosmetic" src="https://github.com/user-attachments/assets/6891af8c-352b-4c2c-81d4-335df945e9b8" />
+
+Visual-only tile (no keybind, no action).
+
+**Use cases:**
+
+1. Section headers and separators
+2. Organizing pages and profiles
+3. Aesthetic/branding tiles
+
+---
+
+## Reporting issues (please include this)
+
+If something is wrong or inconsistent, open an Issue and include:
+
+1. Plugin version (V2.x) and Stream Deck version
+2. Which button (ActionKey / State Memory / Momentary / Dual Action / Action Delay / Hold Repeat / Cosmetic)
+3. Exact steps to reproduce (what you pressed, how fast, expected vs actual)
+4. The log file:
+
+`%appdata%\Elgato\StreamDeck\Plugins\com.mhwlng.starcitizen.sdPlugin\pluginlog.log`
+
+If the report includes clear steps + the log, I can reproduce it and fix it much faster.
+
 
 ---
 # Original README:
@@ -131,13 +286,13 @@ Compressed versions (files ending in .scj) are cached in the plugin directory an
 
 You can also delete the .scj files and restart the plugin, to extract the files from the p4k file again.
 
-For easier debugging, installation and testing, `defaultProfile.xml`, `keybindings.csv`, `joystickbindings.csv`, `mousebindings.csv`, `unboundactions.csv` and `PropertyInspector\StarCitizen\Static.html` files are created in the plugin directory.
+For easier debugging, installation and testing, `defaultProfile.xml`, `keybindings.csv`, `joystickbindings.csv`, `mousebindings.csv`, `unboundactions.csv` and `PropertyInspector\StarCitizen\ActionKey.html` files are created in the plugin directory.
 
 The plugin uses all the active keyboard bindings from `defaultProfile.xml` and then overrules some of the bindings, with any custom keyboard bindings from this file :
 
 `C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\USER\Client\0\Profiles\default\actionmaps.xml`
 
-The `PropertyInspector\StarCitizen\Static.html` and `PropertyInspector\StarCitizen\Macro.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
+The `PropertyInspector\StarCitizen\ActionKey.html` file is dynamically updated, in case more custom keyboard bindings were added to `actionmaps.xml`, 
 that didn't have any corresponding keyboard bindings in `defaultProfile.xml`.
 
 If nothing happens, when pressing streamdeck buttons: you could try to start streamdeck.exe as administrator.
