@@ -1,3 +1,10 @@
+# Please read!
+
+> [!WARNING]
+> **This has been deprecated/archived in favor of: [SCStreamDeck](https://github.com/Jarex985/SCStreamDeck) !**
+> **It wont recieve any updates**
+
+___ 
 # streamdeck-starcitizen (Updated Fork)
 
 **Elgato Stream Deck button plugin for Star Citizen**
